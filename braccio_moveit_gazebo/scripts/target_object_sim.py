@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import rospy
@@ -88,17 +88,17 @@ class BraccioObjectTargetInterface(object):
         set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
         resp = set_state( state_msg )
 
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" % e
+    except rospy.ServiceException as e:
+        print("Service call failed: %s" % e)
 
   def reset_target_position(self):
     """reset block and bowl"""
-    print 'reset block x='
-    x = raw_input()
-    print 'reset block y='
-    y = raw_input()
-    print 'reset block z='
-    z = raw_input()
+    print('reset block x=')
+    x = input()
+    print('reset block y=')
+    y = input()
+    print('reset block z=')
+    z = input()
     self.reset_link('unit_box_0', x, y, z)
     self.reset_link('my_mesh', -0.15, -0.325, 0)
 
@@ -158,7 +158,7 @@ class BraccioObjectTargetInterface(object):
     self.go_to_up()
 
   def load_calibrate(self):
-    """load mapping points from gazebo to robot frame, estimate l and L, generate homography map"""
+    """load mapping points from gazebo to robot frame as estimate l and L, generate homography map"""
     try:
       with open('calibration.json', 'r') as f:
         calib = json.load(f)
@@ -189,12 +189,12 @@ class BraccioObjectTargetInterface(object):
       self.homography = h
 
       self.kinematics = Arm3Link(L=[self.L/2,self.L/2,self.l+L_FUDGE])
-      print 'calibration loaded.'
-      print 'estimated l = ' + str(self.l)
-      print 'estimated L = ' + str(self.L)
+      print('calibration loaded.')
+      print('estimated l = ' + str(self.l))
+      print('estimated L = ' + str(self.L))
       cv2.destroyAllWindows()
     except:
-      print 'calibration.json not in current directory, run calibration first'
+      print('calibration.json not in current directory, run calibration first')
 
   def go_to_j(self, j0=None, j1=None, j2=None, j3=None):
     """update arm joints"""
@@ -265,50 +265,50 @@ class BraccioObjectTargetInterface(object):
     q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_SIDE, 0)
     xy = self.kinematics.get_xy(q)
     if np.abs(xy[0]-s) > CLOSE_ENOUGH:
-      print 'NO SOLUTION FOUND'
-      print 'goal distance = '+str(s)
-      print 'closest solution = '+str(xy[0])
+      print('NO SOLUTION FOUND')
+      print('goal distance = '+str(s))
+      print('closest solution = '+str(xy[0]))
       return s, [phi, np.NaN, np.NaN, np.NaN]
     return s, [phi, q[0], q[1]+np.pi/2, q[2]+np.pi/2]
 
   def get_down_targets(self,x,y):
     s, phi = cart2pol(x,y)
-    print s, phi
+    print(s, phi)
     q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_DOWN, -np.pi/2)
     xy = self.kinematics.get_xy(q)
     if np.abs(xy[0]-s) > CLOSE_ENOUGH:
-      print 'NO SOLUTION FOUND'
-      print 'goal distance = '+str(s)
-      print 'closest solution = '+str(xy[0])
+      print('NO SOLUTION FOUND')
+      print('goal distance = '+str(s))
+      print('closest solution = '+str(xy[0]))
       return s, [phi, np.NaN, np.NaN, np.NaN]
     return s, [phi, q[0], q[1]+np.pi/2, q[2]+np.pi/2]
 
   def go_to_xy(self, x, y, r, how):
     if how=='top':
       s, joint_targets = self.get_down_targets(x,y)
-      print joint_targets
+      print(joint_targets)
       if joint_targets[0]<0 or joint_targets[0]>3.14:
-        print '++++++ Not in reachable area, aborting ++++++'
+        print('++++++ Not in reachable area, aborting ++++++')
         return -1
       if np.isnan(joint_targets[1]) and s < S_TOP_MAX and s > S_SIDE_MIN:
-        print '++++++ Too far out, pulling backwards +++++'
+        print('++++++ Too far out, pulling backwards +++++')
         self.go_to_pull(joint_targets[0])
         return 1
       if np.isnan(joint_targets[1]):
-        print '++++++ Not in reachable area, aborting ++++++'
+        print('++++++ Not in reachable area, aborting ++++++')
         return -1
     elif how=='side':
       s, joint_targets = self.get_targets(x,y)
-      print joint_targets
+      print(joint_targets)
       if joint_targets[0]<0 or joint_targets[0]>3.14:
-        print '++++++ Not in reachable area, aborting ++++++'
+        print('++++++ Not in reachable area, aborting ++++++')
         return -1
       if np.isnan(joint_targets[1]) and s < S_SIDE_MAX and s > S_SIDE_MIN:
-        print '++++++ Too close, pushing backwards +++++'
+        print('++++++ Too close, pushing backwards +++++')
         self.go_to_push(joint_targets[0])
         return 1
       if np.isnan(joint_targets[1]):
-        print '++++++ Not in reachable area, aborting ++++++'
+        print('++++++ Not in reachable area, aborting ++++++')
         return -1
 
     self.go_to_raise()
@@ -328,33 +328,33 @@ class BraccioObjectTargetInterface(object):
   def go_to_manual_joint(self):
     joint_goal = self.move_group.get_current_joint_values()
     for i in range(len(joint_goal)):
-      print 'joint' + str(i) + ' ' + str(joint_goal[i])
-      tst = raw_input()
+      print('joint' + str(i) + ' ' + str(joint_goal[i]))
+      tst = input()
       if tst!='':
           joint_goal[i] = float(tst)
     self.go_to_joint(joint_goal)
 
   def go_to_manual(self, how):
-    print 'pos x?'
-    tst = raw_input()
+    print('pos x?')
+    tst = input()
     if tst!='':
         x = float(tst)
-    print 'pos y?'
-    tst = raw_input()
+    print('pos y?')
+    tst = input()
     if tst!='':
         y = float(tst)
     return self.go_to_xy(x, y, DEFAULT_ROT, how)
 
   def go_to_manual_gripper(self):
-    print 'grip position?'
-    tst = raw_input()
+    print('grip position?')
+    tst = input()
     if tst!='':
         v = float(tst)
     self.go_gripper(v)
 
   def go_to_target(self, how):
     x,y,r = self.get_box_position()
-    print x, y, r
+    print(x, y, r)
     return self.go_to_xy(x, y, r, how)
 
   def go_to_home(self):
@@ -385,11 +385,11 @@ class BraccioObjectTargetInterface(object):
 
   def run_eval(self):
     evl_data = []
-    print "how many trials?"
-    tst = raw_input()
+    print("how many trials?")
+    tst = input()
     N = int(tst)
     for i in range(N):
-      print "Running trial " + str(i)
+      print("Running trial " + str(i))
       how = 'side' if np.random.uniform()<0.5 else 'top'
       extent = 0.5 if how=='side' else S_TOP_MAX
       x = np.random.uniform()*extent
@@ -493,20 +493,20 @@ class Arm3Link:
         return self.q
 
 def print_instructions():
-  print ""
-  print "==================== Instructions: ===================="
-  print "c = calibrate, rerun calibration routine"
-  print "t = target, pick up red block and drop on the ramp"
-  print "m = manual, manually enter location for pickup"
-  print "b = bowl, go through the preprogrammed bowl move"
-  print "r = reset_target, set block to new location, reset bowl"
-  print "e = evaluate, test pickup and collect statistics to file"
-  print "q = quit program"
-  print ""
-  print "type next command:"
+  print("")
+  print("==================== Instructions: ====================")
+  print("c = calibrate, rerun calibration routine")
+  print("t = target, pick up red block and drop on the ramp")
+  print("m = manual, manually enter location for pickup")
+  print("b = bowl, go through the preprogrammed bowl move")
+  print("r = reset_target, set block to new location, reset bowl")
+  print("e = evaluate, test pickup and collect statistics to file")
+  print("q = quit program")
+  print("")
+  print("type next command:")
 
 def main():
-  print """
+  print("""
                 _____  _____  _    _ _____ _   _  ____
           /\   |  __ \|  __ \| |  | |_   _| \ | |/ __ |
          /  \  | |__) | |  | | |  | | | | |  \| | |  | |
@@ -531,37 +531,37 @@ def main():
   \___ \  | | | |\/| | |  | | |      / /\ \ | | | |  | |  _  /
   ____) |_| |_| |  | | |__| | |____ / ____ \| | | |__| | | \ |
  |_____/|_____|_|  |_|\____/|______/_/    \_|_|  \____/|_|  \_\
-"""
-  print "Loading ...."
+""")
+  print("Loading ....")
   bb_targetter = BraccioObjectTargetInterface()
 
   bb_targetter.load_calibrate()
-  print ""
-  print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  print("")
+  print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-  print "  Welcome to the Arduino Braccio Pick+Drop Simulator!"
-  print ""
-  print "This is an example program for simulating control of"
-  print "a Braccio arm using ROS and Gazebo physics simulator."
-  print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  print("  Welcome to the Arduino Braccio Pick+Drop Simulator!")
+  print("")
+  print("This is an example program for simulating control of")
+  print("a Braccio arm using ROS and Gazebo physics simulator.")
+  print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
   while True:
       print_instructions()
-      inp = raw_input()
+      inp = input()
       if inp=='q':
           break
       if inp=='c':
           bb_targetter.calibrate()
       if inp=='t':
-        print 'pick from top (t) or side (s)?'
-        inp2 = raw_input()
+        print('pick from top (t) or side (s)?')
+        inp2 = input()
         if inp2 == 't':
           bb_targetter.go_to_target('top')
         if inp2 == 's':
           bb_targetter.go_to_target('side')
       if inp=='m':
-        print 'pick from top (t) or side (s)?'
-        inp2 = raw_input()
+        print('pick from top (t) or side (s)?')
+        inp2 = input()
         if inp2 == 't':
           bb_targetter.go_to_manual('top')
         if inp2 == 's':
