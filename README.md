@@ -1,6 +1,8 @@
 # Braccio Pick+Drop Simulation with ROS MoveIt and Gazebo
 
-This is a package with a standalone simulation of a Braccio arm with a block, ramp and bowl.  The robot arm picks the red block both from above or from the side, depending on position, and delivers the block to the blue bowl. The arm can then lift and relocate the bowl with the block in it.
+This is a package forked from lots-of-things repository, updated to Ros noetic and python3.
+
+This is a standalone simulation of a Braccio arm with a block, ramp and bowl.  The robot arm picks the red block both from above or from the side, depending on position, and delivers the block to the blue bowl. The arm can then lift and relocate the bowl with the block in it.
 
 ![Braccio Pick+Drop Demo](doc/braccio_pick_demo.gif)
 
@@ -9,12 +11,12 @@ The package comes with a command line interface to control the simulated arm.
 ## Installation
 
 ### Prequisities
-*  Tested on ROS MELODIC
+*  Tested on ROS NOETIC
 *  Required Packages:
 ```
-sudo apt-get install ros-melodic-gazebo-ros-pkg
-sudo apt-get install ros-melodic-gazebo-ros-control
-sudo apt-get install ros-melodic-moveit
+sudo apt-get install ros-noetic-gazebo-ros-pkgs 
+sudo apt-get install ros-noetic-gazebo-ros-control
+sudo apt-get install ros-noetic-moveit
 ```
 
 ### Download and build source
@@ -83,10 +85,6 @@ This project is a subtask in the creation of my [`su_chef` project](https://bonk
 
 ## Contact
 
-If you have any questions, suggestions, or are just interested in reaching out, feel free to contact me [on Twitter](https://twitter.com/bonkerfield). For bugs, you can file [an issue](https://github.com/lots-of-things/braccio_moveit_gazebo/issues) and I'll take a look.
+For bugs, you can file [an issue](https://github.com/caesar753/braccio_moveit_gazebo/issues) and I'll take a look.
 
 ## Credits
-
-I based this work off a lot of other things I found. I started with [CesMak/kuka_arm](https://github.com/CesMak/kuka_arm) ROS+gazebo project, but had to make a lot of adaptations to make it work with the Braccio arm.  I found this [braccio-study](https://github.com/dpakshimpo/braccio-study) repo as well, which reused the [braccio_arduino_ros_rviz](https://github.com/ohlr/braccio_arduino_ros_rviz) configuration, but didn't seem to run for me. Also, I couldn't use these packages alone, because I wanted to control using the MoveIt's python interface.
-
-Next, I followed the [tutorial](http://docs.ros.org/melodic/api/moveit_tutorials/html/index.html) for setting up MoveIt! with gazebo.  It turned out I need two slightly different versions of the URDF to make it work (for reasons I still don't quite understand). I kept running into the problem that the physics were really jerky and I was constantly dropping the block. Finally, I found a solution on these ROS Answers posts ([1](https://answers.ros.org/question/291228/simple-box-grasping-fails/) [2](https://answers.gazebosim.org//question/22353/how-to-connect-the-moveit-planning-with-gazebo-simulation/)) that suggested I need to switch everything to effort_controllers.  Guided by these repos ([1](https://github.com/jonabalzer/braccio_moveit_config),[2](https://github.com/berkeleyopenarms/blue_moveit),[3](https://github.com/kkumpa/ros-robotic-arm)), I figured out how to implement effort_controllers and get them working with MoveIt. This ended up solving a lot.  Finally, I tweaked physics parameters a lot to dial in good reactions, again based on many many ROS answers posts.
