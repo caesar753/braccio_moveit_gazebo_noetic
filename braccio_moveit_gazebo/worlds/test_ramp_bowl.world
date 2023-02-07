@@ -207,8 +207,8 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/stedn/projects/braccio_moveit_gazebo_ws/src/braccio_moveit_gazebo/braccio_moveit_gazebo/worlds/bowl.dae</uri>
-              <scale>0.8 0.8 0.9</scale>
+              <uri>model://bowl.dae</uri>
+              <scale>2.0 2.0 2.0</scale>
             </mesh>
           </geometry>
           <material>
@@ -232,7 +232,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/stedn/projects/braccio_moveit_gazebo_ws/src/braccio_moveit_gazebo/braccio_moveit_gazebo/worlds/bowl.dae</uri>
+              <uri>bowl.dae</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
