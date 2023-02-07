@@ -232,7 +232,7 @@
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>bowl.dae</uri>
+              <uri>model://bowl.dae</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
