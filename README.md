@@ -1,10 +1,8 @@
 # Braccio Pick+Drop Simulation with ROS MoveIt and Gazebo
-
 This is a package forked from lots-of-things repository, updated to Ros noetic and python3.
 
-This is a standalone simulation of a Braccio arm with a block, ramp and bowl.  The robot arm picks the red block both from above or from the side, depending on position, and delivers the block to the blue bowl. The arm can then lift and relocate the bowl with the block in it.
-
-![Braccio Pick+Drop Demo](doc/braccio_pick_demo.gif)
+This is a standalone simulation of a Braccio arm with a block and a ramp.  The robot arm picks the red block both from above or from the side, depending on position, and delivers the 
+block to the ramp. 
 
 The package comes with a command line interface to control the simulated arm.
 
