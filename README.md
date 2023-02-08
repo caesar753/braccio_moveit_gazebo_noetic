@@ -1,8 +1,7 @@
 # Braccio Pick+Drop Simulation with ROS MoveIt and Gazebo
 This is a package forked from lots-of-things repository, updated to Ros noetic and python3.
 
-This is a standalone simulation of a Braccio arm with a block and a ramp.  The robot arm picks the red block both from above or from the side, depending on position, and delivers the 
-block to the ramp. 
+This is a standalone simulation of a Braccio arm with a block, a bowl and a ramp.  The robot arm picks the red block both from above or from the side, depending on position, and delivers the block to the bowl. 
 
 The package comes with a command line interface to control the simulated arm.
 
@@ -23,7 +22,7 @@ mkdir braccio_arm_ws
 cd braccio_arm_ws
 mkdir src
 cd src
-git clone git@github.com:lots-of-things/braccio_moveit_gazebo.git
+git clone git@github.com:caesar753/braccio_moveit_gazebo_noetic.git
 cd ..
 catkin_make
 ```
@@ -73,16 +72,16 @@ Importantly, if you press `t` or `m` you'll be further prompted for whether you 
 
 To reset, press `r` and then insert the (x, y) position for the red block to be reset to.  The robot can reach within a radius of about 0.5 from the origin (0,0).
 
-Finally, to run the evaluation script press `e` and enter the number of trials.  It takes probably 20-30 seconds per trial.  The results willbe saved to `eval_results.json` for later use.
+Finally, to run the evaluation script press `e` and enter the number of trials.  It takes probably 20-30 seconds per trial.  The results will be saved to `eval_results.json` for later use.
 
 ## Learn more
 
-I've written up a more elaborate [blog post](#), that explains the internals in more detail. It covers the inverse kinematics solution, Gazebo+Moveit URDF setup, and Gazebo physics engine fine-tuning.
+In [original lots-of-things repository](https://github.com/lots-of-things/braccio_moveit_gazebo) there is a more elaborate [blog post](#), that explains the internals in more detail. It covers the inverse kinematics solution, Gazebo+Moveit URDF setup, and Gazebo physics engine fine-tuning.
 
-This project is a subtask in the creation of my [`su_chef` project](https://bonkerfield.org/su_chef/), an open-source, automated food prep assistant.
+The original lots-of-things repository](https://github.com/lots-of-things/braccio_moveit_gazebo) is a subtask in the creation of my [`su_chef` project](https://bonkerfield.org/su_chef/), an open-source, automated food prep assistant.
 
 ## Contact
 
-For bugs, you can file [an issue](https://github.com/caesar753/braccio_moveit_gazebo/issues) and I'll take a look.
+For bugs, you can file [an issue](https://github.com/caesar753/braccio_moveit_gazebo_noetic/issues) and I'll take a look.
 
 ## Credits
