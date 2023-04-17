@@ -100,24 +100,34 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='my_mesh'>
-        <pose frame=''>-0.15 -0.325 -0 6e-06 2e-06 0</pose>
+      <model name='my_mesh1'>
+        <pose frame=''>0.15 -0.15 -0 6e-06 2e-06 0</pose>
         <scale>0.8 0.8 0.9</scale>
-        <link name='body'>
-          <pose frame=''>-0.15 -0.325 -0 6e-06 2e-06 0</pose>
+        <link name='body1'>
+          <pose frame=''>0.15 -0.15 -0 6e-06 2e-06 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>-0 -0 -0.005767 0.092049 -0.333739 -2e-06</acceleration>
           <wrench>-0 -0 -0.000288 0 -0 0</wrench>
         </link>
       </model>
-      <model name='unit_box'>
-        <pose frame=''>-0.026899 -0.357416 0.0934 0 -0.535123 0</pose>
-        <scale>0.110022 0.204638 0.009881</scale>
-        <link name='link'>
-          <pose frame=''>-0.026899 -0.357416 0.0934 0 -0.535123 0</pose>
+      <model name='my_mesh2'>
+        <pose frame=''>-0.15 0.15 -0 6e-06 2e-06 0</pose>
+        <scale>0.8 0.8 0.9</scale>
+        <link name='body2'>
+          <pose frame=''>-0.15 0.15 -0 6e-06 2e-06 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>-0 -0 -0.005767 0.092049 -0.333739 -2e-06</acceleration>
+          <wrench>-0 -0 -0.000288 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='my_mesh3'>
+        <pose frame=''>-0.15 -0.15 -0 6e-06 2e-06 0</pose>
+        <scale>0.8 0.8 0.9</scale>
+        <link name='body2'>
+          <pose frame=''>-0.25 -0.25 -0 6e-06 2e-06 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>-0 -0 -0.005767 0.092049 -0.333739 -2e-06</acceleration>
+          <wrench>-0 -0 -0.000288 0 -0 0</wrench>
         </link>
       </model>
       <model name='unit_box_0'>
@@ -125,6 +135,16 @@
         <scale>1 1 1</scale>
         <link name='link'>
           <pose frame=''>0.363757 0.001726 0.023 0 -0 0.000655</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>-0 0 -0 0 -0 0</acceleration>
+          <wrench>-0 0 -0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_box_1'>
+        <pose frame=''>0.01726 0.183757 0.0023 0 -0 0.000655</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.01726 0.183757 0.0023 0 -0 0.000655</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>-0 0 -0 0 -0 0</acceleration>
           <wrench>-0 0 -0 0 -0 0</wrench>
@@ -142,7 +162,7 @@
       </camera>
     </gui>
     <model name='unit_box_0'>
-      <pose frame=''>0.430819 2.189 0.5 0 -0 0</pose>
+      <pose frame=''>0.430819 0.189 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>0.01</mass>
@@ -202,13 +222,74 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-    <model name='my_mesh'>
-      <link name='body'>
+    <model name='unit_box_1'>
+      <pose frame=''>0.01726 0.163757 0.0023 0 -0 0.000655</pose>
+      <link name='link'>
+        <inertial>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.000166667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.000166667</iyy>
+            <iyz>0</iyz>
+            <izz>0.000166667</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.02 0.015 0.008</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <friction>
+              <ode>
+                <mu>200</mu>
+                <mu2>100</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode>
+                <min_depth>0.002</min_depth>
+                <kp>100000</kp>
+              </ode>
+            </contact>
+            <bounce/>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.02 0.015 0.008</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Green</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <velocity_decay>
+          <angular>0.001</angular>
+        </velocity_decay>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='my_mesh1'>
+      <link name='body1'>
         <visual name='visual'>
           <geometry>
             <mesh>
               <uri>model://bowl.dae</uri>
-              <scale>2.0 2.0 2.0</scale>
+              <scale>0.8 0.8 0.9</scale>
             </mesh>
           </geometry>
           <material>
@@ -264,58 +345,129 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-    <model name='unit_box'>
-      <static>1</static>
-      <pose frame=''>0.038208 -0.818029 0.5 0 -0 0</pose>
-      <link name='link'>
-        <inertial>
-          <mass>1</mass>
-          <inertia>
-            <ixx>0.166667</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.166667</iyy>
-            <iyz>0</iyz>
-            <izz>0.166667</izz>
-          </inertia>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
+    <model name='my_mesh2'>
+      <link name='body2'>
         <visual name='visual'>
           <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
+            <mesh>
+              <uri>model://bowl.dae</uri>
+              <scale>0.8 0.8 0.9</scale>
+            </mesh>
           </geometry>
           <material>
             <script>
-              <name>Gazebo/Grey</name>
+              <name>Gazebo/Red</name>
               <uri>file://media/materials/scripts/gazebo.material</uri>
             </script>
           </material>
         </visual>
+        <inertial>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.002</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://bowl.dae</uri>
+              <scale>0.7 0.7 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <friction>
+              <ode>
+                <mu>50</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode>
+                <min_depth>0.002</min_depth>
+                <kp>100000</kp>
+              </ode>
+            </contact>
+            <bounce/>
+          </surface>
+        </collision>
+        <velocity_decay>
+          <angular>0.01</angular>
+        </velocity_decay>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
       </link>
     </model>
+    <model name='my_mesh3'>
+      <link name='body3'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://bowl.dae</uri>
+              <scale>0.8 0.8 0.9</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Green</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <inertial>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.002</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://bowl.dae</uri>
+              <scale>0.7 0.7 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <friction>
+              <ode>
+                <mu>50</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode>
+                <min_depth>0.002</min_depth>
+                <kp>100000</kp>
+              </ode>
+            </contact>
+            <bounce/>
+          </surface>
+        </collision>
+        <velocity_decay>
+          <angular>0.01</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>   
   </world>
 </sdf>
