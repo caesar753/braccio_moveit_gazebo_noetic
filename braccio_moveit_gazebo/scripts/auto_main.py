@@ -273,7 +273,8 @@ def main():
         inp_ch = link_array[j,1].astype(str) + "::link"
         print(inp_ch)
         auto_targetter.get_link_choose(inp_ch)
-        bowl_ch = np.array2string(link_array[j,2])
+        # bowl_ch = np.array2string(link_array[j,2])
+        bowl_ch = link_array[j,2]
         bowl_ch = bowl_ch.replace('[','').replace(']','')
         bowl_ch = "go_to_home_" + bowl_ch
         auto_targetter.go_to_target('top', bowl_ch)
