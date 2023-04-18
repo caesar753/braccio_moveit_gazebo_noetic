@@ -237,7 +237,7 @@ def main():
     
     choose = open (os.path.join(vision_path,"choosen.txt"), "w+")
     choose.write (choosen)
-    choose.close
+    choose.close()
 
 
     # choosen_array 
@@ -247,10 +247,10 @@ def main():
         posizioni = np.array([[x for x in line.split()] for line in pos])
         print(posizioni)
 
-    # choosen_file = os.path.join(vision_path, "choosen.txt")
+    choosen_file = os.path.join(vision_path, "choosen.txt")
     # os.chdir(vision_path)
     # with open (os.path.join(vision_path, "cazzo.txt")) as g:
-    with open ("choosen.txt") as g:
+    with open (choosen_file) as g:
         groups = np.array([[x for x in line.split()] for line in g])
         print(groups)
 
