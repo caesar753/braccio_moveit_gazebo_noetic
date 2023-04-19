@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from scipy.spatial import distance as dist
 from imutils import perspective
 from imutils import contours
@@ -40,9 +42,6 @@ infer_transform = transforms.Compose([
     transforms.Normalize(mean = [0.485, 0.456, 0.406],
                         std = [0.229, 0.224, 0.225])
 ])
-
-vision_path = "../vision/"
-
 
 class segmeasure():
     def __init__(self, img, ld_model, method = "bottom-to-top", wdt = 100):
@@ -112,7 +111,7 @@ class segmeasure():
         # print(f'ROI is {self.ROI}')
 #       #Save the fragment ROI image
         # print(f'ROI number is {self.ROI_number}')
-        cv2.imwrite(os.path.join(vision_path, "segmentation/ROI_{}.png".format(self.ROI_number)), self.ROI)
+        cv2.imwrite("segmentation/ROI_{}.png".format(self.ROI_number), self.ROI)
 
     def return_pippo_topolino(self):
         # print(self.pippo, self.topolino)
@@ -126,7 +125,7 @@ class segmeasure():
       
         #re-opens as a PIL image the fragment ROI image
         # infim = Image.open("segmentation/ROI_{self.ROI_number}.png".format(self.ROI_number), self.ROI)
-        infim = Image.open(os.path.join(vision_path,"segmentation/ROI_{}.png".format(self.ROI_number)))
+        infim = Image.open("segmentation/ROI_{}.png".format(self.ROI_number))
         # cv2.imshow('ROI', infim)
 
         #transforms the image into a tensor, unsqueezing dimension 0, and pases it to cuda()
@@ -152,44 +151,18 @@ class segmeasure():
         self.prediction = int(prediction)
         return self.confidence, self.prediction
 
-    # def return_center_xy(self):
-    #     # print(self.pippo, self.topolino)
-    #     return self.pippo, self.topolino 
+    def return_center_xy(self):
+        # print(self.pippo, self.topolino)
+        return self.pippo, self.topolino 
 
-    # def print_file(self):
-    #     compl_file  = open("posizioni_completo.txt", "a")
+    def print_file(self):
+        compl_file  = open("posizioni_completo.txt", "a")
         
         
     def position(self):
         PositionPub.print_coord(self)
 
-    def image_show(self, orig, box, dimA, dimB, tltrX, tltrY, trbrX, trbrY,\
-                   blbrX, blbrY, tlblX, tlblY, blX, blY, brX, brY,  nome):
-        
-        cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
-
-        # loop over the original points and draw them
-        for (x, y) in box:
-            cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
-
-        # draw the object sizes on the image
-        cv2.putText(orig, "{:.1f}mm".format(dimA),
-            (int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
-        cv2.putText(orig, "{:.1f}mm".format(dimB),
-            (int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
-        
-        # draw the midpoints on the image
-        cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
-        # draw lines between the midpoints
-        cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
-            (255, 0, 255), 2)
-        cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
-            (255, 0, 255), 2)
+    def image_show(self, nome):
         cv2.putText(orig, "class: {:d}".format(self.prediction),
             (int(blX - 35), int(blY + 25)), cv2.FONT_HERSHEY_SIMPLEX,
             0.65, (255, 255, 255), 2)
@@ -245,3 +218,155 @@ class PositionPub():
         except rospy.ServiceException as e:
                 print("Service call failed: %s" % e)
 
+
+def main():
+    print("choose image \n")
+    ch_img = input()
+
+    print("choose method")
+    meth = input()
+
+    print("choose sample width")
+    wdt = input()
+
+    print("which model?")
+    md = input()
+
+    segmentation = segmeasure(ch_img, md, meth , wdt)
+    RosPub = PositionPub()
+    
+    segmentation.load_model()
+    segmentation.readimage()
+    segmentation.transimage()
+
+    n = 0
+    if os.path.isfile("posizioni_mm.txt"): os.remove("posizioni_mm.txt")
+    for c in segmentation.cnts:
+        # if the contour is not sufficiently large, ignore it
+        if cv2.contourArea(c) < 100:
+            continue
+
+        # compute the rotated bounding box of the contour
+        orig = segmentation.thresholded.copy()
+        box = cv2.minAreaRect(c)
+        box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
+        box = np.array(box, dtype="int")
+        # print(f'BoxPoint are {box}')
+        # print(f'BoxPoints for the x are {box[:,0]}')
+        # print(f'BoxPoints for the x are {box[:,1]}')
+        
+        #Store extreme coordinates of the box
+        x_min, y_min = np.amin(box[:,0]), np.amin(box[:,1])
+        x_max, y_max = np.amax(box[:,0]), np.amax(box[:,1])
+        # print(f'x_min is {x_min}, x_max is {x_max}')
+        # print(f'y_min is {y_min}, y_max is {y_max}')
+
+        box = perspective.order_points(box)
+
+        cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
+
+        # loop over the original points and draw them
+        for (x, y) in box:
+            cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
+
+        # unpack the ordered bounding box, then compute the midpoint
+        # between the top-left and top-right coordinates, followed by
+        # the midpoint between bottom-left and bottom-right coordinates
+        (tl, tr, br, bl) = box
+        # print((tl, tr, br, bl))
+        (tltrX, tltrY) = segmentation.midpoint(tl, tr)
+        (blbrX, blbrY) = segmentation.midpoint(bl, br)
+        # compute the midpoint between the top-left and top-right points,
+        # followed by the midpoint between the top-righ and bottom-right
+        (tlblX, tlblY) = segmentation.midpoint(tl, bl)
+        (trbrX, trbrY) = segmentation.midpoint(tr, br)
+        #compute the midpoint between diagonal ((top-left, bottom-right), (bottom-left, top-right))
+        (tlbrX, tlbrY) = segmentation.midpoint(tl, br)
+        print(f'Center of sherd is {(tlbrX, tlbrY)}')
+        segmentation.pippo = (tlbrX, tlbrY)[0]
+        segmentation.topolino = (tlbrX, tlbrY)[1]
+
+        # draw the midpoints on the image
+        cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
+        cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
+        cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
+        cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
+        # draw lines between the midpoints
+        cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
+            (255, 0, 255), 2)
+        cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
+            (255, 0, 255), 2)
+
+        # compute the Euclidean distance between the midpoints
+        dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
+        dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
+        
+        # if the pixels per metric has not been initialized, then
+        # compute it as the ratio of pixels to supplied metric
+        # (in this case, mm)
+        if segmentation.pixelsPerMetric is None:
+            segmentation.pixelsPerMetric = dB / segmentation.width
+
+        # compute the size of the object
+        dimA = dA / segmentation.pixelsPerMetric
+        dimB = dB / segmentation.pixelsPerMetric
+        
+        # draw the object sizes on the image
+        cv2.putText(orig, "{:.1f}mm".format(dimA),
+            (int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+        cv2.putText(orig, "{:.1f}mm".format(dimB),
+            (int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+        
+        # n = n+1
+        # if n > 0: #n == 0 is the measure specimen, no extraction and no prediction
+        #uses the extreme coordinate of the box to extract the fragment as a ROI (Region Of Interest)
+        segmentation.ROI = segmentation.thresholded[y_min:y_max, x_min:x_max]
+        
+        segmentation.regint()
+
+        segmentation.return_center_xy()
+        
+        RosPub.print_coord(segmentation.pippo, segmentation.topolino)
+        
+        if n > 0:
+            segmentation.infer()
+        
+            # distance of center of sherd from image origin
+            centX = segmentation.pippo / segmentation.pixelsPerMetric
+            centY = segmentation.topolino / segmentation.pixelsPerMetric
+            print(f"Center of sherds from origin in mm is {centX}, {centY}")
+            position_mm = open("posizioni_mm.txt", "a")
+            conf = repr(segmentation.confidence)
+            lab = repr(segmentation.prediction)
+            x_mm = repr(round(centX,2))
+            y_mm = repr(round(centY,2))
+            nome = ("sherd_" + str(n))
+            # nome = ("link_" + str(n))
+            # position_mm.write(lab + " " + conf + " " + nome + " " + x_mm + " " + y_mm + "\n")
+            position_mm.write(lab + " " + conf + " " + x_mm + " " + y_mm + " " + nome + "\n")
+            position_mm.close()
+            
+            # segmentation.add_link(x_mm, y_mm)
+            
+            RosPub.add_link(nome, (centX/1000), (centY/1000))
+        
+    
+
+    #   # show the output image
+        # cv2.imshow("Image", orig)
+        # cv2.waitKey(0)
+
+        segmentation.ROI_number += 1
+        n += 1
+
+    
+    # RosPub = PositionPub(segmentation)
+    # RosPub.print_coord()
+    # RosPub.publisher()
+
+
+
+if __name__ == '__main__':
+  main()

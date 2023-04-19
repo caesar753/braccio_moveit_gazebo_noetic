@@ -51,6 +51,10 @@ def main():
 
     print("which model?")
     md = input()
+
+    print ("Do you want to show the image during sherd creation?")
+    im_ch =input()
+    
     segmentation = measure_inference.segmeasure(ch_img, md)
 
     segmentation.load_model()
@@ -85,16 +89,14 @@ def main():
 
         box = perspective.order_points(box)
 
-        cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
-
-        # loop over the original points and draw them
-        for (x, y) in box:
-            cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
-
         # unpack the ordered bounding box, then compute the midpoint
         # between the top-left and top-right coordinates, followed by
         # the midpoint between bottom-left and bottom-right coordinates
         (tl, tr, br, bl) = box
+        (tlX, tlY) = tl
+        (trX, trY) = tr
+        (brX, brY) = br
+        (blX, blY) = bl
         # print((tl, tr, br, bl))
         (tltrX, tltrY) = segmentation.midpoint(tl, tr)
         (blbrX, blbrY) = segmentation.midpoint(bl, br)
@@ -105,19 +107,8 @@ def main():
         #compute the midpoint between diagonal ((top-left, bottom-right), (bottom-left, top-right))
         (tlbrX, tlbrY) = segmentation.midpoint(tl, br)
         print(f'Center of sherd is {(tlbrX, tlbrY)}')
-        segmentation.pippo = (tlbrX, tlbrY)[0]
-        segmentation.topolino = (tlbrX, tlbrY)[1]
-
-        # draw the midpoints on the image
-        cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
-        # draw lines between the midpoints
-        cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
-            (255, 0, 255), 2)
-        cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
-            (255, 0, 255), 2)
+        segmentation.x_center = (tlbrX, tlbrY)[0]
+        segmentation.y_center = (tlbrX, tlbrY)[1]
 
         # compute the Euclidean distance between the midpoints
         dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
@@ -133,14 +124,6 @@ def main():
         dimA = dA / segmentation.pixelsPerMetric
         dimB = dB / segmentation.pixelsPerMetric
         
-        # draw the object sizes on the image
-        cv2.putText(orig, "{:.1f}mm".format(dimA),
-            (int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
-        cv2.putText(orig, "{:.1f}mm".format(dimB),
-            (int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
-        
         # n = n+1
         # if n > 0: #n == 0 is the measure specimen, no extraction and no prediction
         #uses the extreme coordinate of the box to extract the fragment as a ROI (Region Of Interest)
@@ -148,16 +131,15 @@ def main():
         
         segmentation.regint()
 
-        segmentation.return_center_xy()
-        
-        RosPub.print_coord(segmentation.pippo, segmentation.topolino)
-        
+        # RosPub.print_coord(segmentation.x_center, segmentation.y_center)
+    
+
         if n > 0:
             segmentation.infer()
         
             # distance of center of sherd from image origin
-            centX = segmentation.pippo / segmentation.pixelsPerMetric
-            centY = segmentation.topolino / segmentation.pixelsPerMetric
+            centX = segmentation.x_center / segmentation.pixelsPerMetric
+            centY = segmentation.y_center / segmentation.pixelsPerMetric
             print(f"Center of sherds from origin in mm is {centX}, {centY}")
             position_mm = open(position_file, "a")
             conf = repr(segmentation.confidence)
@@ -165,29 +147,19 @@ def main():
             x_mm = repr(round(centX,2))
             y_mm = repr(round(centY,2))
             nome = ("sherd_" + str(n))
-            # nome = ("link_" + str(n))
-            # position_mm.write(lab + " " + conf + " " + nome + " " + x_mm + " " + y_mm + "\n")
             position_mm.write(lab + " " + conf + " " + x_mm + " " + y_mm + " " + nome + "\n")
             position_mm.close()
             
             # segmentation.add_link(x_mm, y_mm)
             
             RosPub.add_link(nome, (centX/1000), (centY/1000))
-        
-    
-
-    #   # show the output image
-        # cv2.imshow("Image", orig)
-        # cv2.waitKey(0)
+            
+            if im_ch == "y":
+                segmentation.image_show(orig, box, dimA, dimB, tltrX, tltrY,\
+                     trbrX, trbrY, blbrX, blbrY, tlblX, tlblY, blX, blY, brX, brY,  nome)        
 
         segmentation.ROI_number += 1
         n += 1
-
-    
-    # RosPub = PositionPub(segmentation)
-    # RosPub.print_coord()
-    # RosPub.publisher()   
-    
     
     with open(position_file) as f:
         array = np.array([[x for x in line.split()] for line in f])
@@ -238,9 +210,6 @@ def main():
     choose = open (os.path.join(vision_path,"choosen.txt"), "w+")
     choose.write (choosen)
     choose.close()
-
-
-    # choosen_array 
 
     #creating an array of the sherds on the table with (class, conf_lev, (x,y)_cent, link_name)
     with open (position_file) as pos:

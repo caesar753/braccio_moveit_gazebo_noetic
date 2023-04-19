@@ -52,6 +52,9 @@ class segmeasure():
         self.ld_model = ld_model
         self.pippo = None
         self.topolino = None
+        self.prediction = 0
+        self.confidence = 0.0
+        self.sherd_name = None
 
     def midpoint(self, ptA, ptB):
         return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
@@ -159,6 +162,48 @@ class segmeasure():
     def position(self):
         PositionPub.print_coord(self)
 
+    def image_show(self, orig, box, dimA, dimB, tltrX, tltrY, trbrX, trbrY, blbrX, blbrY,\
+                   tlblX, tlblY, blX, blY, brX, brY,  nome):
+        
+        cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
+
+        # loop over the original points and draw them
+        for (x, y) in box:
+            cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
+
+        # draw the object sizes on the image
+        cv2.putText(orig, "{:.1f}mm".format(dimA),
+            (int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+        cv2.putText(orig, "{:.1f}mm".format(dimB),
+            (int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+        
+        # draw the midpoints on the image
+        cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
+        cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
+        cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
+        cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
+        # draw lines between the midpoints
+        cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
+            (255, 0, 255), 2)
+        cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
+            (255, 0, 255), 2)
+        cv2.putText(orig, "class: {:d}".format(self.prediction),
+            (int(blX - 35), int(blY + 25)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+        cv2.putText(orig, "conf_lev: {:.2f}".format(self.confidence),
+            (int(brX - 25), int(brY + 25)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+        cv2.putText(orig, "{:s}".format(nome),
+            (int(blbrX - 25), int(blbrY + 50)), cv2.FONT_HERSHEY_SIMPLEX,
+            0.65, (255, 255, 255), 2)
+
+        #   # show the output image
+        orig = cv2.resize(orig, (800,600))
+        cv2.imshow("Image", orig)
+        cv2.waitKey(0)
+
 
 class PositionPub():  
     # def __init__(self, seg): 
@@ -213,6 +258,9 @@ def main():
     print("which model?")
     md = input()
 
+    print("Do you want to show the image?")
+    im_ch = input()
+
     segmentation = segmeasure(ch_img, md, meth , wdt)
     RosPub = PositionPub()
     
@@ -244,16 +292,14 @@ def main():
 
         box = perspective.order_points(box)
 
-        cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
-
-        # loop over the original points and draw them
-        for (x, y) in box:
-            cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
-
         # unpack the ordered bounding box, then compute the midpoint
         # between the top-left and top-right coordinates, followed by
         # the midpoint between bottom-left and bottom-right coordinates
         (tl, tr, br, bl) = box
+        (tlX, tlY) = tl
+        (trX, trY) = tr
+        (brX, brY) = br
+        (blX, blY) = bl
         # print((tl, tr, br, bl))
         (tltrX, tltrY) = segmentation.midpoint(tl, tr)
         (blbrX, blbrY) = segmentation.midpoint(bl, br)
@@ -266,17 +312,6 @@ def main():
         print(f'Center of sherd is {(tlbrX, tlbrY)}')
         segmentation.pippo = (tlbrX, tlbrY)[0]
         segmentation.topolino = (tlbrX, tlbrY)[1]
-
-        # draw the midpoints on the image
-        cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-        cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
-        # draw lines between the midpoints
-        cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
-            (255, 0, 255), 2)
-        cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
-            (255, 0, 255), 2)
 
         # compute the Euclidean distance between the midpoints
         dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
@@ -291,14 +326,6 @@ def main():
         # compute the size of the object
         dimA = dA / segmentation.pixelsPerMetric
         dimB = dB / segmentation.pixelsPerMetric
-        
-        # draw the object sizes on the image
-        cv2.putText(orig, "{:.1f}mm".format(dimA),
-            (int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
-        cv2.putText(orig, "{:.1f}mm".format(dimB),
-            (int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
-            0.65, (255, 255, 255), 2)
         
         # n = n+1
         # if n > 0: #n == 0 is the measure specimen, no extraction and no prediction
@@ -332,6 +359,10 @@ def main():
             # segmentation.add_link(x_mm, y_mm)
             
             RosPub.add_link(nome, (centX/1000), (centY/1000))
+            
+            if im_ch == "y":
+                segmentation.image_show(orig, box, dimA, dimB, tltrX, tltrY, trbrX, trbrY, blbrX, blbrY,\
+                    tlblX, tlblY, blX, blY, brX, brY,  nome)
         
     
 
