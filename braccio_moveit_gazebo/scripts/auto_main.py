@@ -152,7 +152,9 @@ def main():
             
             # segmentation.add_link(x_mm, y_mm)
             
-            RosPub.add_link(nome, (centX/1000), (centY/1000))
+            segmentation.model_creation(dimA, dimB, n)
+            
+            RosPub.add_link(nome, n, (centX/1000), (centY/1000))
             
             if im_ch == "y":
                 segmentation.image_show(orig, box, dimA, dimB, tltrX, tltrY,\

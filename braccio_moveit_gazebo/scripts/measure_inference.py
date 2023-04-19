@@ -205,6 +205,18 @@ class segmeasure():
         cv2.imshow("Image", orig)
         cv2.waitKey(0)
 
+    def model_creation(self, dimA, dimB, n):
+        original = open("model.sdf",'r')
+        filedata = original.read()
+        original.close()
+
+        new_dim = (str(np.round(dimA/1000,3)) + " " + str(np.round(dimB/1000,3)))
+        newdata = filedata.replace("0.02 0.02", new_dim)
+
+        created = open("models/model_{}.sdf".format(n),'w+')
+        created.write(newdata)
+        created.close()
+
 
 class PositionPub():  
     # def __init__(self, seg): 
@@ -224,7 +236,7 @@ class PositionPub():
         positions.close
         
         
-    def add_link(self, name, x, y):
+    def add_link(self, name, n, x, y):
         initial_pose = Pose()
         initial_pose.position.x = float(x)
         initial_pose.position.y = float(y)
@@ -235,7 +247,7 @@ class PositionPub():
         initial_pose.orientation.w = 1.0
 
         # f = open('/home/benb/Dropbox/RoboticsResearch/WAMInProgress/tp/AllInOne/Trajectory_Phonebook/ros_stuff/src/iiim_wam_description/wam.sdf','r')
-        f = open('model.sdf', 'r')
+        f = open("models/model_{}.sdf".format(n), 'r')
         sdff = f.read()
 
         rospy.wait_for_service('/gazebo/spawn_sdf_model')
