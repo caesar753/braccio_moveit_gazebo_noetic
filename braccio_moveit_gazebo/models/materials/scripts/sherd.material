@@ -1,0 +1,15 @@
+material sherd/classe1
+{
+  receive_shadows off
+
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture texture.png
+      }
+    }
+  }
+}

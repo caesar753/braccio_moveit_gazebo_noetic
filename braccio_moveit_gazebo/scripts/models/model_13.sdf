@@ -16,7 +16,7 @@
       <collision name='collision'>
         <geometry>
           <box>
-            <size>0.038 0.041 0.01</size>
+            <size>0.027 0.025 0.01</size>
           </box>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -42,13 +42,14 @@
       <visual name='visual'>
         <geometry>
           <box>
-            <size>0.038 0.041 0.01</size>
+            <size>0.027 0.025 0.01</size>
           </box>
         </geometry>
         <material>
           <script>
-            <name>Gazebo/Yellow</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <uri>model://materials/scripts</uri>
+            <uri>model://materials/textures</uri>
+            <name>RepeatedTexture</name>
           </script>
         </material>
       </visual>

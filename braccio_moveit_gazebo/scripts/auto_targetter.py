@@ -220,6 +220,9 @@ class BraccioObjectTargetInterface(object):
     self.go_to_j(j1=1.15,j2=0.13,j3=2.29)
     # self.go_to_j(j1=1.0,j2=0.13,j3=2.29)
 
+  def go_to_pick(self,):
+    self.go_to_j(j2=0.8)
+
   def go_to_pull(self, phi):
     self.go_to_raise()
     self.gripper_close()
@@ -272,11 +275,11 @@ class BraccioObjectTargetInterface(object):
       if joint_targets[0]<0 or joint_targets[0]>3.14:
         print('++++++ Not in reachable area, aborting ++++++')
         return -1
-      if np.isnan(joint_targets[1]) and s < S_TOP_MAX and s > S_SIDE_MIN:
-        print('++++++ Too far out, pulling backwards +++++')
-        # self.go_to_pull(joint_targets[0])
-        # return 1
-        return -1
+      # if np.isnan(joint_targets[1]) and s < S_TOP_MAX and s > S_SIDE_MIN:
+      #   print('++++++ Too far out, pulling backwards +++++')
+      #   # self.go_to_pull(joint_targets[0])
+      #   # return 1
+      #   return -1
       if np.isnan(joint_targets[1]):
         print('++++++ Not in reachable area, aborting ++++++')
         return -1
@@ -295,6 +298,7 @@ class BraccioObjectTargetInterface(object):
     #     return -1
 
     self.go_to_raise()
+
     self.gripper_open()
     self.go_to_j(j0=float(joint_targets[0]))
 
@@ -303,8 +307,8 @@ class BraccioObjectTargetInterface(object):
                  j3=float(joint_targets[3]))
 
     self.gripper_close()
-    if how=='top' and joint_targets[2]<3:
-      self.go_to_j(j2=float(joint_targets[2])+0.1)
+    # if how=='top' and joint_targets[2]<3:
+    #   self.go_to_j(j2=float(joint_targets[2])+0.1)
     # self.go_to_home()
     home_ch = getattr(self, bowl)
     home_ch()
@@ -355,7 +359,8 @@ class BraccioObjectTargetInterface(object):
 
   def go_to_home_0(self):
     # self.gripper_close()
-    self.go_to_raise()
+    # self.go_to_raise()
+    self.go_to_pick()
     self.go_to_j(j0=2.355)
     self.go_to_j(j1 = 1.67, j2 = 0.10, j3 = 0.5)
     self.gripper_open()
@@ -363,7 +368,8 @@ class BraccioObjectTargetInterface(object):
 
   def go_to_home_1(self):
     # self.gripper_close()
-    self.go_to_raise()
+    # self.go_to_raise()
+    self.go_to_pick()
     self.go_to_j(j0=0.785)
     self.go_to_j(j1=1.57, j2 = 3.00, j3 = 2.55)
     self.gripper_open()
@@ -371,7 +377,8 @@ class BraccioObjectTargetInterface(object):
 
   def go_to_home_2(self):
     # self.gripper_close()
-    self.go_to_raise()
+    # self.go_to_raise()
+    self.go_to_pick()
     self.go_to_j(j0 = 2.355)
     self.go_to_j(j1 = 1.47, j2 = 3.14, j3 = 2.50)
     self.gripper_open()
