@@ -50,7 +50,7 @@ rosrun braccio_moveit_gazebo auto_main.py
 
 ### Recognition of image, creation and selection of the sherds
 
-The program will ask you the image to be recognized (you can use `img005DSC02101.jpg` which is located in `scripts` folder) and the trained CNN (you can use `202303161221_resnet50.pth` located in the same folder) and if you want to display the image with recognition information (choose `y/n`).
+The program will ask you the image to be recognized, the image MUST contatin a chessboard meter of 100mm lenght at the bottom (you can use `img005DSC02101.jpg` which is located in `scripts` folder) and the trained CNN (you can use `202303161221_resnet50.pth` located in the same folder) and if you want to display the image with recognition information (choose `y/n`).
 ![Script scene](doc/image_CNN_choose.png)
 
 After a few seconds some texturized boxes will show on the scene, in the terminal in which you launched the script some information will be displayed (center of sherd in pixels and mm, class).
