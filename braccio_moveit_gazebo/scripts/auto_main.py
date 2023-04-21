@@ -144,6 +144,7 @@ def main():
             position_mm = open(position_file, "a")
             conf = repr(segmentation.confidence)
             lab = repr(segmentation.prediction)
+            class_sherd = ("class" + lab)
             x_mm = repr(round(centX,2))
             y_mm = repr(round(centY,2))
             nome = ("sherd_" + str(n))
@@ -152,7 +153,7 @@ def main():
             
             # segmentation.add_link(x_mm, y_mm)
             
-            segmentation.model_creation(dimA, dimB, n)
+            segmentation.model_creation(dimA, dimB, n, class_sherd)
             
             RosPub.add_link(nome, n, (centX/1000), (centY/1000))
             

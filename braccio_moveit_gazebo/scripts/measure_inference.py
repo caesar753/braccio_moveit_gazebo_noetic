@@ -205,18 +205,19 @@ class segmeasure():
         cv2.imshow("Image", orig)
         cv2.waitKey(0)
 
-    def model_creation(self, dimA, dimB, n):
+    def model_creation(self, dimA, dimB, n, class_texture):
         original = open("model.sdf",'r')
         filedata = original.read()
         original.close()
 
         new_dim = (str(np.round(dimA/1000,3)) + " " + str(np.round(dimB/1000,3)))
         newdata = filedata.replace("0.02 0.02", new_dim)
+        print(f"in model_creation class texture is {class_texture}")
+        sherd_class = newdata.replace("TEXTUREHERE", class_texture)
 
         created = open("models/model_{}.sdf".format(n),'w+')
-        created.write(newdata)
+        created.write(sherd_class)
         created.close()
-
 
 class PositionPub():  
     # def __init__(self, seg): 

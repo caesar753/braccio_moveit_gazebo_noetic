@@ -1,0 +1,16 @@
+material RepeatedTexture/class24
+{
+  receive_shadows off
+
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture class24.png
+        scale 0.4 0.4
+      }
+    }
+  }
+}

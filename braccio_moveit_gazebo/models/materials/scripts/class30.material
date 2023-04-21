@@ -1,0 +1,16 @@
+material RepeatedTexture/class30
+{
+  receive_shadows off
+
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture class30.png
+        scale 0.4 0.4
+      }
+    }
+  }
+}
