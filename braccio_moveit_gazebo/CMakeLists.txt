@@ -7,12 +7,17 @@ project(braccio_moveit_gazebo)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+set ("OpenCV_DIR" "/usr/include/opencv4/opencv2/")
+
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     rospy
     std_msgs
     gazebo_ros
-    message_generation)
+    message_generation
+    moveit_ros_planning_interface
+    # OpenCV REQUIRED PATHS "/usr/include/opencv4/opencv2/"
+    )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -116,11 +121,15 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(include ${catkin_INCLUDE_DIRS})
+# include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/tuda_turtlebot3_gazebo.cpp
 # )
+# add_library(${PROJECT_NAME}
+#     src/${PROJECT_NAME}/cpp/InvKin.hpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -131,6 +140,8 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 ####add_executable(move_arm_server src/move_arm_server.cpp)
+add_executable(targetter_2 cpp/auto_targetter.cpp)
+target_link_libraries(targetter_2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

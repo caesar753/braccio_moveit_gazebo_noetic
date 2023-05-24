@@ -5,9 +5,10 @@
 #include <gazebo_msgs/SetModelState.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <opencv2/opencv.hpp>
+// #include <opencv/highgui/highgui.hpp>
 #include <json/json.h>
 #include <cmath>
-#include "InvKin.hpp"
+// #include <InvKin.hpp>
 
 #define THETA_EXT 0.27
 #define THETA_RET M_PI/4
@@ -81,23 +82,23 @@ double getOtherAngles(double theta_shoulder, double& theta_wrist, double& theta_
     theta_elbow = M_PI/2 - 2*theta_shoulder;
 }
 
-class BraccioObjectTargetInterface
-{
-private:
-    ros::NodeHandle nh_;
-    moveit::planning_interface::MoveGroupInterface move_group_;
-    moveit::planning_interface::MoveGroupInterface gripper_group_;
-    InvKin kinematics_;
-    ros::Subscriber linkStateSub_;
-    std::string linkChoose_;
-    cv::Mat homography_;
+// class BraccioObjectTargetInterface
+// {
+// private:
+//     ros::NodeHandle nh_;
+//     moveit::planning_interface::MoveGroupInterface move_group_;
+//     moveit::planning_interface::MoveGroupInterface gripper_group_;
+//     InvKin kinematics_;
+//     ros::Subscriber linkStateSub_;
+//     std::string linkChoose_;
+//     cv::Mat homography_;
 
-public:
-    BraccioObjectTargetInterface() : nh_(""), move_group_("braccio_arm"), gripper_group_("braccio_gripper")
-    {
-        moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+// public:
+//     BraccioObjectTargetInterface() : nh_(""), move_group_("braccio_arm"), gripper_group_("braccio_gripper")
+//     {
+//         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
-        THETA_RET_RAD = THETA_RET;
-        THETA_EXT_RAD = THETA_EXT;
+//         THETA_RET_RAD = THETA_RET;
+//         THETA_EXT_RAD = THETA_EXT;
 
-        linkStateSub_ = nh_.subscribe("/gazebo/link_states", 10, link
+//         linkStateSub_ = nh_.subscribe("/gazebo/link_states", 10, link
