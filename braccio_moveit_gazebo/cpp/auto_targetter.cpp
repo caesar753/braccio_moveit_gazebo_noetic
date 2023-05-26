@@ -6,7 +6,7 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <opencv2/opencv.hpp>
 // #include <opencv/highgui/highgui.hpp>
-#include <json/json.h>
+#include <jsoncpp/json/json.h>
 #include <cmath>
 // #include <InvKin.hpp>
 
@@ -102,3 +102,78 @@ double getOtherAngles(double theta_shoulder, double& theta_wrist, double& theta_
 //         THETA_EXT_RAD = THETA_EXT;
 
 //         linkStateSub_ = nh_.subscribe("/gazebo/link_states", 10, link
+
+class BraccioObjectTargetInterface {
+private:
+
+    // Define the structures for holding link states and positions
+    struct LinkState {
+        std::string name;
+        geometry_msgs::Pose pose;
+    };
+    
+    struct LinkStates {
+        std::vector<LinkState> link_states;
+    };
+    
+    // Define the Arm3Link class for inverse kinematics calculations
+    class Arm3Link {
+        // Implementation details for inverse kinematics
+    };
+
+    ros::NodeHandle nh;
+    ros::Subscriber states_sub;
+
+    std::string link_choose;
+    LinkStates linkstate_data;
+
+    Arm3Link kinematics;
+    cv::Mat homography;
+    moveit::planning_interface::MoveGroupInterface move_group;
+    moveit::planning_interface::MoveGroupInterface gripper_group;
+
+public:
+    BraccioObjectTargetInterface() : nh("~"), move_group("braccio_arm"), gripper_group("braccio_gripper") {
+        // Initialize ROS
+        moveit_commander::roscpp_initialize(sys.argv);
+        ros::init(argc, argv, "braccio_xy_bb_target");
+
+        states_sub = nh.subscribe("/gazebo/link_states", 1, &BraccioObjectTargetInterface::linkstate_callback, this);
+    }
+
+    void linkstate_callback(const LinkStates::ConstPtr& data) {
+        linkstate_data = *data;
+    }
+
+    std::tuple<float, float, float> transform(float x1, float y1, float r) {
+        if (homography.empty()) {
+            throw std::runtime_error("Run or load calibration first!");
+        }
+
+        cv::Mat a(1, 1, CV_32FC2);
+        cv::Mat res;
+        a.at<cv::Point2f>(0, 0) = cv::Point2f(x1, y1);
+        cv::perspectiveTransform(a, res, homography);
+        float res_x = res.at<float>(0, 0);
+        float res_y = res.at<float>(0, 1);
+        return std::make_tuple(res_x, res_y, DEFAULT_ROT);
+    }
+
+    std::tuple<float, float, float> get_box_position() {
+        float x, y, r;
+        std::tie(x, y, r) = get_link_position({link_choose});
+        return transform(x, y, r);
+    }
+
+    void get_link_choose(const std::string& lk) {
+        link_choose = lk;
+        std::cout << lk << std::endl;
+        std::cout << link_choose << std::endl;
+    }
+
+    std::tuple<float, float, float> get_link_position(const std::vector<std::string>& link_names) {
+        float x = 0.0;
+        float y = 0.0;
+        int n = 0;
+        for (const auto& l : link_names) {
+            auto it = std::find_if(link

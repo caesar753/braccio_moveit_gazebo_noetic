@@ -109,18 +109,18 @@ private:
     std::vector<double> min_angles;
 };
 
-// int main() {
-//     Arm3Link arm;
+int main() {
+    Arm3Link arm;
 
-//     std::vector<double> q = arm.inv_kin(2.0, 0.0, 1.5, -M_PI / 4);
-//     std::vector<double> xy = arm.get_xy(q);
+    std::vector<double> q = arm.inv_kin(2.0, 0.0, 1.5, -M_PI / 4);
+    std::vector<double> xy = arm.get_xy(q);
 
-//     std::cout << "Joint angles: ";
-//     for (const auto& angle : q)
-//         std::cout << angle << " ";
-//     std::cout << std::endl;
+    std::cout << "Joint angles: ";
+    for (const auto& angle : q)
+        std::cout << angle << " ";
+    std::cout << std::endl;
 
-//     std::cout << "End effector position: (" << xy[0] << ", " << xy[1] << ")" << std::endl;
+    std::cout << "End effector position: (" << xy[0] << ", " << xy[1] << ")" << std::endl;
 
-//     return 0;
-// }
+    return 0;
+}
