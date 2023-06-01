@@ -61,6 +61,10 @@ After sherds creation the arm will move and picks the fragments of the choosen c
 ![Pick up](doc/pick_up.png)
 ![Drop off](doc/drop_off.png)
 
+This is a short video to illustrate how the arm works
+
+![GIF video](doc/pick%2Bdrop_720.gif)
+
 ## Learn more
 
 In [original lots-of-things repository](https://github.com/lots-of-things/braccio_moveit_gazebo) there is a more elaborate [blog post](#), that explains the internals in more detail. It covers the inverse kinematics solution, Gazebo+Moveit URDF setup, and Gazebo physics engine fine-tuning.

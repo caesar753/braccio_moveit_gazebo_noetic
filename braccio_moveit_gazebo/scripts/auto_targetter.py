@@ -201,7 +201,7 @@ class BraccioObjectTargetInterface(object):
     self.move_group.stop()
 
   def gripper_close(self):
-    self.go_gripper(1.2)
+    self.go_gripper(1.20)
 
   def gripper_open(self):
     self.go_gripper(0.9)
