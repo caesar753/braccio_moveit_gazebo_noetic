@@ -40,10 +40,11 @@
         </surface>
       </collision>
       <visual name='visual'>
-        <geometry>
-          <box>
-            <size>0.027 0.047 0.01</size>
-          </box>
+       <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/fragments/frag_1/meshes/model.stl</uri>
+          </mesh>
         </geometry>
         <material>
           <script>
