@@ -43,7 +43,7 @@
     <arg name="use_rviz" value="$(arg use_rviz)" />
   </include>
 
-  <include if="$(arg connect_braccio)" file="$(find braccio_moveit_gazebo)/launch/connect.launch">
-  </include>
+  <!--<include if="$(arg connect_braccio)" file="$(find braccio_moveit_gazebo)/launch/connect.launch">
+  </include> -->
 
 </launch>

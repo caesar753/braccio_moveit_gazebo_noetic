@@ -61,9 +61,11 @@ class BraccioObjectTargetInterface(object):
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('braccio_xy_bb_target', anonymous=True)
 
-    group_name = "braccio_arm"
+    group_name = "panda_arm"
+    # group_name = "braccio_arm"
     self.move_group = moveit_commander.MoveGroupCommander(group_name)
-    self.gripper_group = moveit_commander.MoveGroupCommander("braccio_gripper")
+    self.gripper_group = moveit_commander.MoveGroupCommander("hand")
+    # self.gripper_group = moveit_commander.MoveGroupCommander("braccio_gripper")
 
     self.homography = None
 
@@ -201,13 +203,16 @@ class BraccioObjectTargetInterface(object):
     self.move_group.stop()
 
   def gripper_close(self):
-    self.go_gripper(1.20)
+    # self.go_gripper(1.20)
+    self.go_gripper(0.01)
 
   def gripper_open(self):
-    self.go_gripper(0.9)
+    # self.go_gripper(0.9)
+    self.go_gripper(0.02)
 
   def gripper_middle(self):
-    self.go_gripper(1.05)
+    # self.go_gripper(1.05)
+    self.go_gripper(0.015)
 
   def go_gripper(self, val):
     joint_goal = self.gripper_group.get_current_joint_values()

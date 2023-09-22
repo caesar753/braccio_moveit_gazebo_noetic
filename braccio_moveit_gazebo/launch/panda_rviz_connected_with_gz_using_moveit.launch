@@ -12,7 +12,7 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
-    <include file="$(find franka_gazebo)/launch/panda.launch">
+    <include file="$(find panda_gazebo)/launch/start_simulation.launch">
       <arg name="world" value="$(find braccio_moveit_gazebo)/worlds/test_ramp_bowl.world"/>
       <arg name="rviz" value="False"/>
 

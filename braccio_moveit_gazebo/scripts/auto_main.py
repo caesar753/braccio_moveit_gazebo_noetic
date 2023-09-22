@@ -28,7 +28,7 @@ from torchvision import models
 import torchvision.transforms as transforms
 
 from PIL import Image
-
+import copy
 
 import rospy
 from gazebo_msgs.msg import LinkState, ModelState
