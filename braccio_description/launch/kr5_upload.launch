@@ -8,4 +8,5 @@
 <!-- Load robot description to parameter server -->
 <param name="robot_description" textfile="$(find braccio_description)/urdf/braccio_model.urdf" />
 
+
 </launch>

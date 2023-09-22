@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="connect_braccio" default="false" />
+  <arg name="arm_id" default="pippo" />
+  <arg name="use_ros_control" default="False" />
+  <arg name="use_rviz" default="False" />
+
+  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+    <include file="$(find franka_gazebo)/launch/panda.launch">
+      <arg name="world" value="$(find braccio_moveit_gazebo)/worlds/test_ramp_bowl.world"/>
+      <arg name="rviz" value="False"/>
+
+    </include>
+
+  <include file="$(find braccio_moveit_gazebo)/launch/controller_utils.launch"/>
+
+
+</launch>
