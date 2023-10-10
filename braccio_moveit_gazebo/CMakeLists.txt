@@ -140,8 +140,13 @@ include_directories(include ${OpenCV_INCLUDE_DIRS})
 ## The recommended prefix ensures that target names across packages don't collide
 ####add_executable(move_arm_server src/move_arm_server.cpp)
 # add_executable(targetter_2 cpp/auto_targetter.cpp)
-add_executable(targetter_step cpp/auto_targetter_step_by_step.cpp)
+# add_executable(targetter_step cpp/auto_targetter_step_by_step.cpp)
+# target_link_libraries(targetter_step ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+add_executable(targetter_step cpp/auto_targetter_step.cpp)
 target_link_libraries(targetter_step ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+install(DIRECTORY launch targetter_step DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
 
 # add_executable(invkin cpp/InvKin.cpp)
 # target_link_libraries(invkin ${catkin_LIBRARIES})

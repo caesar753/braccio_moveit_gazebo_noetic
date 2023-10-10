@@ -108,5 +108,4 @@ private:
         // Throw an error to indicate that an optimization library or algorithm should be used.
         throw std::runtime_error("Optimization algorithm not implemented");
     }
-}
-
+};
