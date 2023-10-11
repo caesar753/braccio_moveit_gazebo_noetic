@@ -35,23 +35,24 @@ S_SIDE_MAX = 0.4
 S_SIDE_MIN = 0.161
 S_TOP_MAX = 0.29
 
-def cart2pol(x, y):
-    """helper, convert cartesian to polar coordinates"""
-    rho = np.sqrt(x**2 + y**2)
-    phi = np.arctan2(y, x)
-    return(rho, phi)
+# DONE!
+# def cart2pol(x, y):
+#     """helper, convert cartesian to polar coordinates"""
+#     rho = np.sqrt(x**2 + y**2)
+#     phi = np.arctan2(y, x)
+#     return(rho, phi)
 
-def pol2cart(rho, phi):
-    """helper,convert polar to cartesian"""
-    x = rho*np.cos(phi)
-    y = rho*np.sin(phi)
-    return(x, y)
+# def pol2cart(rho, phi):
+#     """helper,convert polar to cartesian"""
+#     x = rho*np.cos(phi)
+#     y = rho*np.sin(phi)
+#     return(x, y)
 
-def get_other_angles(theta_shoulder):
-  """helper, converting some angles"""
-  theta_wrist = theta_shoulder + np.pi/2
-  theta_elbow = np.pi/2 - 2*theta_shoulder
-  return theta_wrist, theta_elbow
+# def get_other_angles(theta_shoulder):
+#   """helper, converting some angles"""
+#   theta_wrist = theta_shoulder + np.pi/2
+#   theta_elbow = np.pi/2 - 2*theta_shoulder
+#   return theta_wrist, theta_elbow
 
 class BraccioObjectTargetInterface(object):
   """BraccioXYBBTargetInterface"""
@@ -191,33 +192,33 @@ class BraccioObjectTargetInterface(object):
   #   self.go_to_j(j1=2.1,j2=0.01,j3=0.01)
   #   self.go_to_j(j1=2.7,j2=0.01,j3=0.01)
 
-  def get_targets(self,x,y):
-    s, phi = cart2pol(x,y)
-    q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_SIDE, 0)
-    xy = self.kinematics.get_xy(q)
-    if np.abs(xy[0]-s) > CLOSE_ENOUGH:
-      print('NO SOLUTION FOUND')
-      print('goal distance = '+str(s))
-      print('closest solution = '+str(xy[0]))
-      return s, [phi, np.NaN, np.NaN, np.NaN]
-    return s, [phi, q[0], q[1]+np.pi/2, q[2]+np.pi/2]
+  # def get_targets(self,x,y):
+  #   s, phi = cart2pol(x,y)
+  #   q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_SIDE, 0)
+  #   xy = self.kinematics.get_xy(q)
+  #   if np.abs(xy[0]-s) > CLOSE_ENOUGH:
+  #     print('NO SOLUTION FOUND')
+  #     print('goal distance = '+str(s))
+  #     print('closest solution = '+str(xy[0]))
+  #     return s, [phi, np.NaN, np.NaN, np.NaN]
+  #   return s, [phi, q[0], q[1]+np.pi/2, q[2]+np.pi/2]
 
-  def get_down_targets(self,x,y):
-    s, phi = cart2pol(x,y)
-    print(s, phi)
-    q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_DOWN, -np.pi/2)
-    xy = self.kinematics.get_xy(q)
-    if np.abs(xy[0]-s) > CLOSE_ENOUGH:
-      print('NO SOLUTION FOUND')
-      print('goal distance = '+str(s))
-      print('closest solution = '+str(xy[0]))
-      return s, [phi, np.NaN, np.NaN, np.NaN]
-    return s, [phi, q[0], q[1]+np.pi/2, q[2]+np.pi/2]
+  #DONE!
+  # def get_down_targets(self,x,y):
+  #   s, phi = cart2pol(x,y)
+  #   print(s, phi)
+  #   q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_DOWN, -np.pi/2)
+  #   xy = self.kinematics.get_xy(q)
+  #   if np.abs(xy[0]-s) > CLOSE_ENOUGH:
+  #     print('NO SOLUTION FOUND')
+  #     print('goal distance = '+str(s))
+  #     print('closest solution = '+str(xy[0]))
+  #     return s, [phi, np.NaN, np.NaN, np.NaN]
+  #   return s, [phi, q[0], q[1]+np.pi/2, q[2]+np.pi/2]
 
   def go_to_xy(self, x, y, r, how, bowl):
     if how=='top':
       s, joint_targets = self.get_down_targets(x,y)
-      print(joint_targets)
       if joint_targets[0]<0 or joint_targets[0]>3.14:
         print('++++++ Not in reachable area, aborting ++++++')
         return -1
@@ -297,41 +298,43 @@ class BraccioObjectTargetInterface(object):
   #     print(lk)
   #     print(self.link_choose)
   
-  def go_to_home(self):
-    self.go_to_raise()
-    self.go_to_j(j0=3.14)
-    self.gripper_open()
-    self.gripper_open()
+  # DONE!
+  # def go_to_home(self):
+  #   self.go_to_raise()
+  #   self.go_to_j(j0=3.14)
+  #   self.gripper_open()
+  #   self.gripper_open()
 
-  def go_to_home_0(self):
-    # self.gripper_close()
-    # self.go_to_raise()
-    self.go_to_pick()
-    self.go_to_j(j0=2.355)
-    self.go_to_j(j1 = 1.67, j2 = 0.10, j3 = 0.5)
-    self.gripper_open()
-    self.gripper_open()
+  # def go_to_home_0(self):
+  #   # self.gripper_close()
+  #   # self.go_to_raise()
+  #   self.go_to_pick()
+  #   self.go_to_j(j0=2.355)
+  #   self.go_to_j(j1 = 1.67, j2 = 0.10, j3 = 0.5)
+  #   self.gripper_open()
+  #   self.gripper_open()
 
-  def go_to_home_1(self):
-    # self.gripper_close()
-    # self.go_to_raise()
-    self.go_to_pick()
-    self.go_to_j(j0=0.785)
-    self.go_to_j(j1=1.57, j2 = 3.00, j3 = 2.55)
-    self.gripper_open()
-    self.gripper_open()
+  # def go_to_home_1(self):
+  #   # self.gripper_close()
+  #   # self.go_to_raise()
+  #   self.go_to_pick()
+  #   self.go_to_j(j0=0.785)
+  #   self.go_to_j(j1=1.57, j2 = 3.00, j3 = 2.55)
+  #   self.gripper_open()
+  #   self.gripper_open()
 
-  def go_to_home_2(self):
-    # self.gripper_close()
-    # self.go_to_raise()
-    self.go_to_pick()
-    self.go_to_j(j0 = 2.355)
-    self.go_to_j(j1 = 1.47, j2 = 3.14, j3 = 2.50)
-    self.gripper_open()
-    self.gripper_open()
+  # def go_to_home_2(self):
+  #   # self.gripper_close()
+  #   # self.go_to_raise()
+  #   self.go_to_pick()
+  #   self.go_to_j(j0 = 2.355)
+  #   self.go_to_j(j1 = 1.47, j2 = 3.14, j3 = 2.50)
+  #   self.gripper_open()
+  #   self.gripper_open()
 
-  def go_to_up(self):
-    self.go_to_j(j0=1.5708,j1=1.5708,j2=1.5708,j3=1.5708)
+  #DONE!
+  # def go_to_up(self):
+  #   self.go_to_j(j0=1.5708,j1=1.5708,j2=1.5708,j3=1.5708)
 
   def linkch(self):
     with open ("choosen.txt") as g:

@@ -40,12 +40,14 @@ const double S_SIDE_MAX = 0.4;
 const double S_SIDE_MIN = 0.161;
 const double S_TOP_MAX = 0.29;
 
+Arm3Link InvKin;
+
 //function which transforms cartesian coord into polar coord
 std::pair<double, double> cart2pol(double x, double y) {
   // helper, convert cartesian to polar coordinates
   double rho = std::sqrt(x * x + y * y);
   double phi = std::atan2(y, x);
-  return std::make_pair(rho, phi);
+  return {rho, phi};
 }
 
 //function which transforms polar coord into cartesian
@@ -80,7 +82,7 @@ class BraccioObjectInterface{
         gripper = moveit::planning_interface::MoveGroupInterface(gripper_options);
     }
 
-     std::tuple<float, float, float> TransformCoord(float x1, float y1, float r) {
+    std::tuple<float, float, float> TransformCoord(float x1, float y1, float r) {
     // void TransformCoord(double x1, double y1, double r){
         if (!homography_.empty()) {
             cv::Mat a = (cv::Mat_<float>(1, 2) << x1, y1);
@@ -117,11 +119,88 @@ class BraccioObjectInterface{
         arm_group_.stop();
     }
 
+    
+
+    std::vector<double>  getDown(double x,double y){
+        std::pair<double, double> result;
+        std::vector<double> xy;
+        double s, phi;
+
+        std::tie(s, phi) = cart2pol(x, y);
+        std::vector<double> s_vec;
+        s_vec[0]= s;
+
+        std::vector<double> q = InvKin.inv_kin(s_vec, Z_MIN, Z_MAX_DOWN, -M_PI / 2);
+        xy = InvKin.get_xy(q);
+
+        if (std::abs(xy[0] - s) > CLOSE_ENOUGH) {
+            std::cout << "NO SOLUTION FOUND" << std::endl;
+            std::cout << "goal distance = " << s << std::endl;
+            std::cout << "closest solution = " << xy[0] << std::endl;
+            return {s, phi, std::nan(""), std::nan(""), std::nan("")};
+        } else {
+            return {s, phi, q[0], q[1] + M_PI / 2, q[2] + M_PI / 2};
+        }
+    }
+
+
+    std::vector<double> GetTarg(std::tuple<double, double> (double x, double y)){
+    double x, y;
+    std::pair<double, double> polar = cart2pol(x, y);
+    std::vector<double> polar_vec = {polar.first, polar.second};
+    std::vector<double> q = InvKin.inv_kin(polar_vec, Z_MIN, Z_MAX_SIDE, 0);
+    std::vector<double> xy = InvKin.get_xy(q);
+
+    if (std::abs(xy[0] - polar.first) > CLOSE_ENOUGH) {
+        std::cout << "NO SOLUTION FOUND" << std::endl;
+        std::cout << "goal distance = " << polar.first << std::endl;
+        std::cout << "closest solution = " << xy[0] << std::endl;
+        return {polar_vec[0], polar_vec[1], std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()};
+    }
+
+    return {polar_vec[0], polar_vec[1], q[0], q[1] + M_PI / 2, q[2] + M_PI / 2};
+
+    }
+    
+    int goXY(double x, double y, double r, char bowl){
+        std::vector<double> joint_targets = getDown(x,y);
+        if (joint_targets[0] < 0 || joint_targets[0] > 3.14){
+         std::cout << printf("++++++ Not in reachable area, aborting ++++++") << std::endl;
+        return -1;
+        }
+
+        if (std::isnan(joint_targets[1])) {
+        std::cout << "++++++ Not in reachable area, aborting ++++++" << std::endl;
+        return -1;
+        }
+    
+    goRaise();
+    gripperOpen();
+    
+    double j0 = double(joint_targets[0]);
+    goJoint(j0);
+    
+    double j1 = double(joint_targets[1]);
+    double j2 = double(joint_targets[2]);
+    double j3 = double(joint_targets[3]);
+    goJoint(j1, j2, j3);
+
+    gripperClosed();
+    
+    //TO_CONVERT PYTHON METHODS!
+    // home_ch = getattr(self, bowl)
+    // home_ch()
+    
+    return 0;
+    }
+
     void goRaise(){
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        double j0 = joint_goal[0];
         double j1 = 1.5;
         double j2 = 0.13;
         double j3 = 2.29;
-        goJoint(j1, j2, j3);
+        goJoint(j0, j1, j2, j3);
     }
 
     void goPick(){
@@ -190,6 +269,37 @@ class BraccioObjectInterface{
         gripper.stop();
     }
 
+    //METHODS TO PLACE THE FRAGMENT IN THE BOWL
+
+    void goHome1(){
+        double j0, j1, j2, j3;
+        goPick();
+        goJoint(j0=2.355);
+        goJoint(j1 = 1.67, j2 = 0.10, j3 = 0.5);
+        gripperOpen();
+    }
+
+    void goHome2(){
+        double j0, j1, j2, j3;
+        goPick();
+        goJoint(j0 = 2.355);
+        goJoint(j1 = 1.57, j2 = 3.00, j3 = 2.55);
+        gripperOpen();
+    }
+
+    void goHome3(){
+        double j0, j1, j2, j3;
+        goPick();
+        goJoint(j0 = 2.355);
+        goJoint(j1 = 1.47, j2 = 3.14, j3 = 2.50);
+        gripperOpen();
+    }
+
+    void goUp(){
+        double j0, j1, j2, j3;
+        goJoint(j0=1.5708,j1=1.5708,j2=1.5708,j3=1.5708);
+    }
+
 };
 
 int main(int argc, char** argv){
@@ -201,12 +311,9 @@ int main(int argc, char** argv){
     ros::AsyncSpinner spin(1);
     spin.start();
 
-    std::printf("sono qua");
     
     BraccioObjectInterface br;
 
-
-    std::printf("ma non qua");
     
 
     br.gripperMiddle();
