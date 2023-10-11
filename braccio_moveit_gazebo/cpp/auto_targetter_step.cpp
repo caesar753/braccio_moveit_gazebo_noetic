@@ -3,10 +3,13 @@
 #include <string>
 #include <vector>
 #include <cmath>
-#include <jsoncpp/json/json.h>
+// #include <jsoncpp/json/json.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -25,6 +28,10 @@
 #include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/SetModelState.h>
 
+#include <nlohmann/json.hpp>
+
+
+
 #include "InvKin.hpp"
 
 // Constants
@@ -41,6 +48,8 @@ const double S_SIDE_MIN = 0.161;
 const double S_TOP_MAX = 0.29;
 
 Arm3Link InvKin;
+
+using json = nlohmann::json;
 
 //function which transforms cartesian coord into polar coord
 std::pair<double, double> cart2pol(double x, double y) {
@@ -82,6 +91,139 @@ class BraccioObjectInterface{
         // gripper = moveit::planning_interface::MoveGroupInterface(gripper_options);
     }
 
+    // void calibrate() {
+    //     std::vector<std::vector<double>> src_pts;
+    //     std::vector<std::vector<double>> dst_angs;
+
+    //     // Replace with your actual implementation for getting link positions
+    //     double mouseX, mouseY, r_;
+    //     get_link_position(std::vector<std::string>{"kuka::base_link"});
+    //     src_pts.push_back({mouseX, mouseY});
+
+    //     gripperMiddle();
+    //     int N = 8;
+    //     double phi_min = M_PI / 6;
+    //     double phi_max = M_PI - M_PI / 6;
+
+    //     for (int i = 2; i < N; ++i) {
+    //         goRaise();
+    //         if (i % 2 == 0) {
+    //             double rand_phi = phi_min + i * (phi_max - phi_min) / N;
+    //             double theta_shoulder = THETA_RET; // Define THETA_RET
+    //         } else {
+    //             double theta_shoulder = THETA_EXT; // Define THETA_EXT
+    //             double theta_wrist, theta_elbow;
+    //             get_other_angles(theta_shoulder, theta_elbow, theta_wrist);
+    //             std::vector<double> rand_targ = {rand_phi, theta_shoulder, theta_elbow, theta_wrist};
+    //             goJoint(rand_phi, theta_shoulder, theta_elbow, theta_wrist);
+
+    //             // Replace with your actual implementation for getting link positions
+    //             get_link_position(std::vector<std::string>{"kuka::left_gripper_link", "kuka::right_gripper_link"});
+    //             src_pts.push_back({mouseX, mouseY});
+    //             dst_angs.push_back(rand_targ);
+    //         }
+    //     }
+
+    //     std::ofstream file("calibration.json");
+    //     if (file.is_open()) {
+    //         json calibration_data = {{"src_pts", src_pts}, {"dst_angs", dst_angs}};
+    //         file << calibration_data.dump(4);
+    //         file.close();
+
+    //         load_calibrate();
+    //         goUp();
+    //     } else {
+    //         std::cerr << "Failed to open calibration.json for writing" << std::endl;
+    //     }
+    // }
+    
+    void loadCalibrate() {
+    try {
+        std::ifstream file("calibration.json");
+        if (!file.is_open()) {
+            std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+            return;
+        }
+        json calib;
+        file >> calib;
+        file.close();
+
+        std::vector<std::vector<double>> src_pts = calib["src_pts"];
+        std::vector<std::vector<double>> dst_angs = calib["dst_angs"];
+
+        std::vector<double> s_ret_pts, s_ext_pts;
+        for (int i = 1; i < src_pts.size(); i += 2) {
+            s_ret_pts.push_back(src_pts[i][0]);
+            s_ret_pts.push_back(src_pts[i][1]);
+            s_ext_pts.push_back(src_pts[i + 1][0]);
+            s_ext_pts.push_back(src_pts[i + 1][1]);
+        }
+
+        std::vector<double> arr(s_ret_pts.size());
+        for (int i = 0; i < s_ret_pts.size(); i++) {
+            arr[i] = s_ret_pts[i] - s_ext_pts[i];
+        }
+
+        // Define THETA_EXT and THETA_RET
+        double THETA_EXT = 0.0;  // Replace with the actual values
+        double THETA_RET = 0.0;  // Replace with the actual values
+
+        double L = cv::norm(arr) / s_ret_pts.size() / (cos(THETA_EXT) - cos(THETA_RET));
+
+        for (int i = 0; i < s_ret_pts.size(); i += 2) {
+            arr[0] = s_ret_pts[i] - src_pts[0][0];
+            arr[1] = s_ret_pts[i + 1] - src_pts[0][1];
+        }
+
+        double l1 = cv::norm(arr) / (s_ret_pts.size() / 2) - L * cos(THETA_RET);
+
+        for (int i = 0; i < s_ext_pts.size(); i += 2) {
+            arr[0] = s_ext_pts[i] - src_pts[0][0];
+            arr[1] = s_ext_pts[i + 1] - src_pts[0][1];
+        }
+
+        double l2 = cv::norm(arr) / (s_ext_pts.size() / 2) - L * cos(THETA_EXT);
+
+        double l = (l1 + l2) / 2;
+
+        std::vector<std::vector<double>> dst_pts = {{0, 0}};
+
+        for (const std::vector<double>& dst_ang : dst_angs) {
+            double phi = dst_ang[0];
+            double rho = L * cos(dst_ang[1]) + l;
+            double x = rho * cos(phi);
+            double y = rho * sin(phi);
+            dst_pts.push_back({x, y});
+        }
+
+        cv::Mat src_pts_mat(src_pts.size(), 2, CV_64F);
+        for (int i = 0; i < src_pts.size(); i++) {
+            src_pts_mat.at<double>(i, 0) = src_pts[i][0];
+            src_pts_mat.at<double>(i, 1) = src_pts[i][1];
+        }
+
+        cv::Mat dst_pts_mat(dst_pts.size(), 2, CV_64F);
+        for (int i = 0; i < dst_pts.size(); i++) {
+            dst_pts_mat.at<double>(i, 0) = dst_pts[i][0];
+            dst_pts_mat.at<double>(i, 1) = dst_pts[i][1];
+        }
+
+        cv::Mat h = cv::findHomography(src_pts_mat, dst_pts_mat);
+        // Assuming 'InvKin' and 'Arm3Link' classes are defined elsewhere
+        std::vector<double> arm_vect = {L / 2, L / 2, l + L_FUDGE};
+        InvKin = arm_vect;
+
+        std::cout << "calibration loaded." << std::endl;
+        std::cout << "estimated l = " << l << std::endl;
+        std::cout << "estimated L = " << L << std::endl;
+
+        cv::destroyAllWindows();
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+    }
+}
+    
     std::tuple<float, float, float> TransformCoord(float x1, float y1, float r) {
     // void TransformCoord(double x1, double y1, double r){
         if (!homography_.empty()) {
@@ -332,9 +474,10 @@ int main(int argc, char** argv){
     
     BraccioObjectInterface br;
 
+    br.loadCalibrate();
     br.gripperClosed();
     br.goRaise();
     // br.goManual();
-    br.goHome1();
+    // br.goHome1();
     return 0;
 }
