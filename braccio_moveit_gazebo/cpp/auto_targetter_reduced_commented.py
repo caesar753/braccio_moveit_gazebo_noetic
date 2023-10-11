@@ -192,6 +192,7 @@ class BraccioObjectTargetInterface(object):
   #   self.go_to_j(j1=2.1,j2=0.01,j3=0.01)
   #   self.go_to_j(j1=2.7,j2=0.01,j3=0.01)
 
+  # DONE!
   # def get_targets(self,x,y):
   #   s, phi = cart2pol(x,y)
   #   q = self.kinematics.inv_kin(s, Z_MIN, Z_MAX_SIDE, 0)
@@ -230,20 +231,7 @@ class BraccioObjectTargetInterface(object):
       if np.isnan(joint_targets[1]):
         print('++++++ Not in reachable area, aborting ++++++')
         return -1
-    # elif how=='side':
-    #   s, joint_targets = self.get_targets(x,y)
-    #   print(joint_targets)
-    #   if joint_targets[0]<0 or joint_targets[0]>3.14:
-    #     print('++++++ Not in reachable area, aborting ++++++')
-    #     return -1
-    #   if np.isnan(joint_targets[1]) and s < S_SIDE_MAX and s > S_SIDE_MIN:
-    #     print('++++++ Too close, pushing backwards +++++')
-    #     self.go_to_push(joint_targets[0])
-    #     return 1
-    #   if np.isnan(joint_targets[1]):
-    #     print('++++++ Not in reachable area, aborting ++++++')
-    #     return -1
-
+      
     self.go_to_raise()
 
     self.gripper_open()

@@ -78,8 +78,8 @@ class BraccioObjectInterface{
     BraccioObjectInterface() : nh_("~"), arm_group_("braccio_arm"), gripper("braccio_gripper"){
         moveit::planning_interface::MoveGroupInterface::Options arm_options("braccio_arm", "robot_description", nh_);
         moveit::planning_interface::MoveGroupInterface::Options gripper_options("braccio_gripper", "robot_description", nh_);
-        arm_group_ = moveit::planning_interface::MoveGroupInterface(arm_options);
-        gripper = moveit::planning_interface::MoveGroupInterface(gripper_options);
+        // arm_group_ = moveit::planning_interface::MoveGroupInterface(arm_options);
+        // gripper = moveit::planning_interface::MoveGroupInterface(gripper_options);
     }
 
     std::tuple<float, float, float> TransformCoord(float x1, float y1, float r) {
@@ -102,7 +102,7 @@ class BraccioObjectInterface{
         }
     }
     
-    void goJoint(double j0 = 0.0, double j1 = 0.3, double j2 = 1.7, double j3=1.8){
+    void goJoint(double j0 = 0.0, double j1 = 0.0, double j2 = 0.0, double j3=0.0){
         std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
         if (j0 >= 0)
             joint_goal[0] = j0;
@@ -121,7 +121,7 @@ class BraccioObjectInterface{
 
     
 
-    std::vector<double>  getDown(double x,double y){
+    std::tuple<double, std::vector<double>>  getDown(double x,double y){
         std::pair<double, double> result;
         std::vector<double> xy;
         double s, phi;
@@ -137,33 +137,35 @@ class BraccioObjectInterface{
             std::cout << "NO SOLUTION FOUND" << std::endl;
             std::cout << "goal distance = " << s << std::endl;
             std::cout << "closest solution = " << xy[0] << std::endl;
-            return {s, phi, std::nan(""), std::nan(""), std::nan("")};
+            return std::make_tuple(s, std::vector<double>{s, phi, std::nan(""), std::nan(""), std::nan("")});
         } else {
-            return {s, phi, q[0], q[1] + M_PI / 2, q[2] + M_PI / 2};
+            return std::make_tuple(s, std::vector<double>{phi, q[0], q[1] + M_PI / 2, q[2] + M_PI / 2});
         }
     }
 
 
-    std::vector<double> GetTarg(std::tuple<double, double> (double x, double y)){
-    double x, y;
-    std::pair<double, double> polar = cart2pol(x, y);
-    std::vector<double> polar_vec = {polar.first, polar.second};
-    std::vector<double> q = InvKin.inv_kin(polar_vec, Z_MIN, Z_MAX_SIDE, 0);
-    std::vector<double> xy = InvKin.get_xy(q);
+    std::tuple<double, std::vector<double>> GetTarg(std::tuple<double, double> (double x, double y)){
+        double x, y;
+        std::pair<double, double> polar = cart2pol(x, y);
+        std::vector<double> polar_vec = {polar.first, polar.second};
+        std::vector<double> q = InvKin.inv_kin(polar_vec, Z_MIN, Z_MAX_SIDE, 0);
+        std::vector<double> xy = InvKin.get_xy(q);
 
-    if (std::abs(xy[0] - polar.first) > CLOSE_ENOUGH) {
-        std::cout << "NO SOLUTION FOUND" << std::endl;
-        std::cout << "goal distance = " << polar.first << std::endl;
-        std::cout << "closest solution = " << xy[0] << std::endl;
-        return {polar_vec[0], polar_vec[1], std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()};
-    }
+        if (std::abs(xy[0] - polar.first) > CLOSE_ENOUGH) {
+            std::cout << "NO SOLUTION FOUND" << std::endl;
+            std::cout << "goal distance = " << polar.first << std::endl;
+            std::cout << "closest solution = " << xy[0] << std::endl;
+            return std::make_tuple(polar_vec[0], std::vector<double>{polar_vec[1], std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()});
+        }
 
-    return {polar_vec[0], polar_vec[1], q[0], q[1] + M_PI / 2, q[2] + M_PI / 2};
+        return std::make_tuple(polar_vec[0], std::vector<double>{polar_vec[1], q[0], q[1] + M_PI / 2, q[2] + M_PI / 2});
 
     }
     
     int goXY(double x, double y, double r, char bowl){
-        std::vector<double> joint_targets = getDown(x,y);
+        double s;
+        std::vector<double> joint_targets;
+        std::make_tuple(s, joint_targets) = getDown(x,y);
         if (joint_targets[0] < 0 || joint_targets[0] > 3.14){
          std::cout << printf("++++++ Not in reachable area, aborting ++++++") << std::endl;
         return -1;
@@ -177,13 +179,7 @@ class BraccioObjectInterface{
     goRaise();
     gripperOpen();
     
-    double j0 = double(joint_targets[0]);
-    goJoint(j0);
-    
-    double j1 = double(joint_targets[1]);
-    double j2 = double(joint_targets[2]);
-    double j3 = double(joint_targets[3]);
-    goJoint(j1, j2, j3);
+    goJoint(joint_targets[0], joint_targets[1], joint_targets[2], joint_targets[3]);
 
     gripperClosed();
     
@@ -204,37 +200,44 @@ class BraccioObjectInterface{
     }
 
     void goPick(){
-        double j1 = 1.5;
-        // double j2 = 0.8;
-        // double j3 = 2.29;
-        // goJoint(j1, j2, j3);
-        goJoint(j1);
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        double j0 = joint_goal[0];
+        double j1 = joint_goal[1];
+        double j2 = 0.8;
+        double j3 = joint_goal[3];
+        goJoint(j0, j1, j2, j3);
     }
 
     void goPull(double phi){
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        goJoint(joint_goal[0], joint_goal[1], joint_goal[2], joint_goal[3]);
         goRaise();
         gripperClosed();
         if (phi){
-            goJoint(phi, 1.5, 0.13, 2.29);
-        };
-        goJoint(0.3,1.7,1.8);
-        goJoint(0.3,1.5,0.3);
-        goJoint(1.2,0.3,0.1);
-        goJoint(1.5,0.3,0.1);
-        goJoint(0.3,1.8,1.8);
+            goJoint(phi, joint_goal[1], joint_goal[2], joint_goal[3]);
+        
+            goJoint(phi, 0.3,1.7,1.8);
+            goJoint(phi, 0.3,1.5,0.3);
+            goJoint(phi, 1.2,0.3,0.1);
+            goJoint(phi, 1.5,0.3,0.1);
+            goJoint(phi, 0.3,1.8,1.8);
+        }
     }
 
     void goPush(double phi){
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        goJoint(joint_goal[0], joint_goal[1], joint_goal[2], joint_goal[3]);
         goRaise();
         gripperClosed();
         if (phi){
             goJoint(phi, 1.5, 0.13, 2.29);
-        };
-        goJoint(2.7,0.01,0.01);
-        goJoint(1.6,0.01,0.01);
-        goJoint(0.3,1.8,0.1);
-        goJoint(2.1,0.01,0.01);
-        goJoint(2.7,0.01,0.01);
+        
+        goJoint(phi, 2.7,0.01,0.01);
+        goJoint(phi, 1.6,0.01,0.01);
+        goJoint(phi, 0.3,1.8,0.1);
+        goJoint(phi, 2.1,0.01,0.01);
+        goJoint(phi, 2.7,0.01,0.01);
+        }
     }
 
 
@@ -271,33 +274,48 @@ class BraccioObjectInterface{
 
     //METHODS TO PLACE THE FRAGMENT IN THE BOWL
 
-    void goHome1(){
+    int goHome1(){
         double j0, j1, j2, j3;
         goPick();
-        goJoint(j0=2.355);
-        goJoint(j1 = 1.67, j2 = 0.10, j3 = 0.5);
+        j0 = 2.355;
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        goJoint(j0, joint_goal[1], joint_goal[2], joint_goal[3]);
+        goJoint(j0, 1.67, 0.10, 0.50);
         gripperOpen();
+        return 0;
+
     }
 
     void goHome2(){
         double j0, j1, j2, j3;
         goPick();
-        goJoint(j0 = 2.355);
-        goJoint(j1 = 1.57, j2 = 3.00, j3 = 2.55);
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        j0 = 0.785;
+        goJoint(j0, joint_goal[1], joint_goal[2], joint_goal[3]);
+        goJoint(j0, 1.57, 3.00, 2.55);
         gripperOpen();
     }
 
     void goHome3(){
-        double j0, j1, j2, j3;
+        double j0;
         goPick();
-        goJoint(j0 = 2.355);
-        goJoint(j1 = 1.47, j2 = 3.14, j3 = 2.50);
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        j0 = 2.355;
+        goJoint(j0, joint_goal[1], joint_goal[2], joint_goal[3]);
+        goJoint(j0, 1.47, 3.14, 2.50);
         gripperOpen();
     }
 
     void goUp(){
-        double j0, j1, j2, j3;
-        goJoint(j0=1.5708,j1=1.5708,j2=1.5708,j3=1.5708);
+       
+        goJoint(1.5708,1.5708,1.5708, 1.5708);
+    }
+
+    void goManual(){
+        double j1;
+        std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
+        
+        goJoint(joint_goal[0], 2.5, joint_goal[2], joint_goal[3]);
     }
 
 };
@@ -314,8 +332,9 @@ int main(int argc, char** argv){
     
     BraccioObjectInterface br;
 
-    
-
-    br.gripperMiddle();
+    br.gripperClosed();
+    br.goRaise();
+    // br.goManual();
+    br.goHome1();
     return 0;
 }
