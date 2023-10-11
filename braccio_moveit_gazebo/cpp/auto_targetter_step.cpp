@@ -474,10 +474,16 @@ int main(int argc, char** argv){
     
     BraccioObjectInterface br;
 
-    br.loadCalibrate();
+    // br.loadCalibrate();
     br.gripperClosed();
     br.goRaise();
     // br.goManual();
-    // br.goHome1();
+    br.goHome1();
+    br.goRaise();
+    // br.goManual();
+    br.goHome2();
+    br.goRaise();
+    // br.goManual();
+    br.goHome3();
     return 0;
 }
