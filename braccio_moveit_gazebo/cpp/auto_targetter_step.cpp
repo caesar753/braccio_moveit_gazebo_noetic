@@ -416,7 +416,7 @@ class BraccioObjectInterface{
 
     //METHODS TO PLACE THE FRAGMENT IN THE BOWL
 
-    int goHome1(){
+    int goHome0(){
         double j0, j1, j2, j3;
         goPick();
         j0 = 2.355;
@@ -428,7 +428,7 @@ class BraccioObjectInterface{
 
     }
 
-    void goHome2(){
+    void goHome1(){
         double j0, j1, j2, j3;
         goPick();
         std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
@@ -438,7 +438,7 @@ class BraccioObjectInterface{
         gripperOpen();
     }
 
-    void goHome3(){
+    void goHome2(){
         double j0;
         goPick();
         std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
@@ -478,12 +478,12 @@ int main(int argc, char** argv){
     br.gripperClosed();
     br.goRaise();
     // br.goManual();
+    br.goHome0();
+    br.goRaise();
+    // br.goManual();
     br.goHome1();
     br.goRaise();
     // br.goManual();
     br.goHome2();
-    br.goRaise();
-    // br.goManual();
-    br.goHome3();
     return 0;
 }

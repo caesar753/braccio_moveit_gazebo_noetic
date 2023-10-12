@@ -109,4 +109,3 @@ private:
         throw std::runtime_error("Optimization algorithm not implemented");
     }
 }
-
