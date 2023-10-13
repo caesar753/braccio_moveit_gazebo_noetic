@@ -2,6 +2,7 @@
 
 import numpy as np
 import measure_inference
+import cpp.python_scripts.sherd_pub 
 
 
 from scipy.spatial import distance as dist
@@ -35,7 +36,7 @@ from geometry_msgs.msg import Pose, Twist
 from gazebo_msgs.srv import SetModelState
 from gazebo_msgs.srv import SpawnModel
 
-from custom_msgs.msg import for_cpp
+# from custom_msgs.msg import for_cpp
 
 import time
 
@@ -44,6 +45,7 @@ import time
 # auto_targetter.load_calibrate()
 
 RosPub = measure_inference.PositionPub()
+# SherdPublisher = sherd_pub.SherdPublisher()
 vision_path = "../vision/"
 
 def main():
@@ -246,34 +248,38 @@ def main():
     link_array = np.array(link_choose)
     print(f"selected is {np.array2string(link_array)}")
 
-    for_cpp = open("for_cpp.txt", "a")
-    for j in range(len(link_array)):
-        inp_ch = link_array[j,1].astype(str) + "::link"
-        bowl_ch = link_array[j,2]
-        bowl_ch = bowl_ch.replace('[','').replace(']','')
-        bowl_ch = "goHome" + bowl_ch
-        print(f"choosed in {inp_ch} in the bowl {bowl_ch}")
-        for_cpp.write(inp_ch + " " + bowl_ch + "\n")
-    for_cpp.close()
+    # for_cpp = open("for_cpp.txt", "a")
+    # for j in range(len(link_array)):
+    #     inp_ch = link_array[j,1].astype(str) + "::link"
+    #     bowl_ch = link_array[j,2]
+    #     bowl_ch = bowl_ch.replace('[','').replace(']','')
+    #     bowl_ch = "goHome" + bowl_ch
+    #     print(f"choosed in {inp_ch} in the bowl {bowl_ch}")
+    #     for_cpp.write(inp_ch + " " + bowl_ch + "\n")
+    # for_cpp.close()
 
-    with open ("for_cpp.txt") as cpp:
-        pub_array = np.array([[x for x in line.split()] for line in cpp])
-        print(pub_array)
+    # with open ("for_cpp.txt") as cpp:
+    #     pub_array = np.array([[x for x in line.split()] for line in cpp])
+    #     print(pub_array)
     
-    rospy.init_node('sherd_pub')
+    # rospy.init_node('sherd_pub')
 
-    sherd_pub = rospy.Publisher("/sherd_pub", for_cpp, queue_size=10)
+    # sherd_pub = rospy.Publisher("/sherd_pub", for_cpp, queue_size=10)
 
-    rospy.loginfo("sherd_publisher started")
+    # rospy.loginfo("sherd_publisher started")
 
-    rate = rospy.Rate(5)
+    # rate = rospy.Rate(5)
 
-    while not rospy.is_shutdown():
-        rospy.loginfo("Hello")
-        msg = for_cpp()
-        msg.dati = {"a", "b", "c"}
-        sherd_pub.publish(msg)
-        rate.sleep()
+    # while not rospy.is_shutdown():
+    #     rospy.loginfo("Hello")
+    #     msg = for_cpp()
+    #     msg.dati = {"a", "b", "c"}
+    #     sherd_pub.publish(msg)
+    #     rate.sleep()
+
+    # SherdPublisher.array_pub()
+
+
 
 
         

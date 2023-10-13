@@ -27,6 +27,8 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/SetModelState.h>
+#include <custom_msgs/for_cpp.h>
+#include <custom_msgs/matrix.h>
 
 #include <nlohmann/json.hpp>
 
@@ -91,6 +93,13 @@ class BraccioObjectInterface{
         // gripper = moveit::planning_interface::MoveGroupInterface(gripper_options);
     }
 
+    void callback_received_sherds(const custom_msgs::for_cpp& msg){
+
+        ROS_INFO("Message_received; %s, %s", msg.sherds, msg.homes);
+    }
+
+
+
     // void calibrate() {
     //     std::vector<std::vector<double>> src_pts;
     //     std::vector<std::vector<double>> dst_angs;
@@ -136,7 +145,7 @@ class BraccioObjectInterface{
     //         std::cerr << "Failed to open calibration.json for writing" << std::endl;
     //     }
     // }
-    
+
     void loadCalibrate() {
     try {
         std::ifstream file("calibration.json");
@@ -462,28 +471,38 @@ class BraccioObjectInterface{
 
 };
 
+
 int main(int argc, char** argv){
     
 
     ros::init(argc, argv, "auto_targetter_step");
     ros::NodeHandle nh_;
 
-    ros::AsyncSpinner spin(1);
-    spin.start();
-
+    // ros::AsyncSpinner spin(1);
+    // spin.start();
     
     BraccioObjectInterface br;
 
-    // br.loadCalibrate();
-    br.gripperClosed();
-    br.goRaise();
-    // br.goManual();
-    br.goHome0();
-    br.goRaise();
-    // br.goManual();
-    br.goHome1();
-    br.goRaise();
-    // br.goManual();
-    br.goHome2();
-    return 0;
+    
+    ros::Subscriber sub = nh_.subscribe("/sherd_pub", 
+            1000, &BraccioObjectInterface::callback_received_sherds, &br );
+    
+
+
+    ros::spin();
+
+    // // br.loadCalibrate();
+    // br.gripperClosed();
+    // br.goRaise();
+    // // br.goManual();
+    // br.goHome0();
+    // br.goRaise();
+    // // br.goManual();
+    // br.goHome1();
+    // br.goRaise();
+    // // br.goManual();
+    // br.goHome2();
+
+
+    // return 0;
 }
