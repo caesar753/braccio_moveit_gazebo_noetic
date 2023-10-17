@@ -95,7 +95,12 @@ class BraccioObjectInterface{
 
     void callback_received_sherds(const custom_msgs::for_cpp& msg){
 
-        ROS_INFO("Message_received; %s, %s", msg.sherds, msg.homes);
+        ROS_INFO("Sherd_received; %s, %s", msg.sherds, msg.homes);
+    }
+
+    void callback_received_sherd_matrix(const custom_msgs::matrix& msg){
+
+        ROS_INFO("Matrix_received; %s", msg.dati);
     }
 
 
@@ -484,10 +489,11 @@ int main(int argc, char** argv){
     BraccioObjectInterface br;
 
     
-    ros::Subscriber sub = nh_.subscribe("/sherd_pub", 
+    ros::Subscriber sub_sherd = nh_.subscribe("/sherd_pub", 
             1000, &BraccioObjectInterface::callback_received_sherds, &br );
-    
 
+    ros::Subscriber matr_sherd = nh_.subscribe("/matrix_pub", 
+            1000, &BraccioObjectInterface::callback_received_sherd_matrix, &br );
 
     ros::spin();
 

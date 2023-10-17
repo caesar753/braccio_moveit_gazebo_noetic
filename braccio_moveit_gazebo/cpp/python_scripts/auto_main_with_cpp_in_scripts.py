@@ -285,8 +285,8 @@ def main():
     txt = "for_cpp.txt"
     SherdPublisher = sherd_pub.SherdPublisher(txt)
     
-    SherdPublisher.array_pub()
-    # SherdPublisher.matrix_pub()
+    # SherdPublisher.array_pub()
+    SherdPublisher.matrix_pub()
 
 
 

@@ -1,1 +1,1 @@
-for_cpp[2] dati
+for_cpp[] dati
