@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import numpy as np
+
 import auto_targetter
 import measure_inference
+import image_listener
 
 
 from scipy.spatial import distance as dist
@@ -43,11 +45,24 @@ auto_targetter = auto_targetter.BraccioObjectTargetInterface()
 auto_targetter.load_calibrate()
 
 RosPub = measure_inference.PositionPub()
+camera = image_listener.CameraShooter()
 vision_path = "../vision/"
 
 def main():
-    print("choose image \n")
-    ch_img = input()
+    
+    print("do you want to use [c]amera or [i]mage?")
+    initial_choose = input()
+    
+    if initial_choose == "i":
+        print("choose image \n")
+        ch_img = input()
+    elif initial_choose == "c":
+        camera.shoot()
+        ch_img = "camera_image.jpg"
+    else:
+        print("No valid choice")
+        return 1
+
 
     print("which model?")
     md = input()

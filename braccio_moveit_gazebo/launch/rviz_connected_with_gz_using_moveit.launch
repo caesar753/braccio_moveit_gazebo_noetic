@@ -46,4 +46,11 @@
   <include if="$(arg connect_braccio)" file="$(find braccio_moveit_gazebo)/launch/connect.launch">
   </include>
 
+  <!-- start realsense node -->    
+  <!--<include file="$(find realsense2_camera)/launch/rs_camera.launch.launch" />
+    <arg name="filters" value="pointcloud" />
+    <arg name="initial_reset" value="true" />
+  </include>
+  -->	
+
 </launch>

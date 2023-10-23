@@ -109,9 +109,12 @@ class segmeasure():
         return self.model
 
     def regint(self):
-        # print(f'ROI is {self.ROI}')
+        print(f'ROI is {self.ROI}')
 #       #Save the fragment ROI image
-        # print(f'ROI number is {self.ROI_number}')
+        print(f'ROI number is {self.ROI_number}')
+        
+        #TO DO: IF THE IMAGE IS NOT PERFECTLY SEGMENTED EITHER THE ROI CANNOT BE SAVED (EMPTY IMAGE) OR THE INFER FUNCTION CRASHES!!
+        # if self.ROI.any():
         cv2.imwrite(os.path.join(vision_path, "segmentation/ROI_{}.png".format(self.ROI_number)), self.ROI)
 
     def return_pippo_topolino(self):
