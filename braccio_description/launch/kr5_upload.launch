@@ -1,11 +1,19 @@
 <?xml version="1.0"?>
 <launch>
 
-<arg name="robot_name" default="kuka" />
+<!-- <arg name="robot_name" default="kuka" />
 <arg name="use_ros_control" default="True" />
-<arg name="motors_controller_type" default="EffortJointInterface" />
+<arg name="motors_controller_type" default="EffortJointInterface" /> -->
 
 <!-- Load robot description to parameter server -->
-<param name="robot_description" textfile="$(find braccio_description)/urdf/braccio_model.urdf" />
+
+<!-- <param name="camera_description" command="$(find xacro)/xacro '$(find realsense2_description)/urdf/test_d435_camera.urdf.xacro' use_nominal_extrinsics:=true add_plug:=true use_mesh:=true" /> -->
+
+<param name="camera_description" command="$(find xacro)/xacro '$(find braccio_description)/urdf/xacros/_d435.urdf.xacro' " />
+
+
+<!-- <param name="robot_description" textfile="$(find braccio_description)/urdf/braccio_model.urdf" /> -->
+
+
 
 </launch>
