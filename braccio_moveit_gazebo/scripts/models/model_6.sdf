@@ -16,7 +16,7 @@
       <collision name='collision'>
         <geometry>
           <box>
-            <size>0.012 0.026 0.01</size>
+            <size>0.06 0.034 0.01</size>
           </box>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -50,7 +50,7 @@
           <script>
             <uri>model://materials/scripts</uri>
             <uri>model://materials/textures</uri>
-            <name>RepeatedTexture/class18</name>
+            <name>RepeatedTexture/class8</name>
           </script>
         </material>
       </visual>
