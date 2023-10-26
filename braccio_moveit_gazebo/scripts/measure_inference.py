@@ -109,7 +109,7 @@ class segmeasure():
         return self.model
 
     def regint(self):
-        print(f'ROI is {self.ROI}')
+        # print(f'ROI is {self.ROI}')
 #       #Save the fragment ROI image
         print(f'ROI number is {self.ROI_number}')
         

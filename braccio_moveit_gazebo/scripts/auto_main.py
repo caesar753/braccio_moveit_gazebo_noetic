@@ -5,7 +5,9 @@ import numpy as np
 import auto_targetter
 import measure_inference
 import image_listener
+import vision_utils
 
+import open3d as o3d
 
 from scipy.spatial import distance as dist
 from imutils import perspective
@@ -40,16 +42,17 @@ from gazebo_msgs.srv import SpawnModel
 
 import time
 
-auto_targetter = auto_targetter.BraccioObjectTargetInterface()
+# auto_targetter = auto_targetter.BraccioObjectTargetInterface()
 
-auto_targetter.load_calibrate()
+# auto_targetter.load_calibrate()
 
 RosPub = measure_inference.PositionPub()
 camera = image_listener.CameraShooter()
 vision_path = "../vision/"
 
 def main():
-    
+    rospy.init_node('auto_main')
+
     print("do you want to use [c]amera or [i]mage?")
     initial_choose = input()
     
@@ -256,16 +259,33 @@ def main():
     link_array = np.array(link_choose)
     print(f"selected is {np.array2string(link_array)}")
 
-    for j in range(len(link_array)):
-        inp_ch = link_array[j,1].astype(str) + "::link"
-        print(inp_ch)
-        auto_targetter.get_link_choose(inp_ch)
-        # bowl_ch = np.array2string(link_array[j,2])
-        bowl_ch = link_array[j,2]
-        bowl_ch = bowl_ch.replace('[','').replace(']','')
-        bowl_ch = "go_to_home_" + bowl_ch
-        auto_targetter.go_to_target('top', bowl_ch)
-        print(bowl_ch)
+    print("starting pointcloud segmentation")
+    debug = True
+    pcd = vision_utils.get_point_cloud_from_ros(debug)
+
+    print ('Table Segmentation')
+    table_cloud, object_cloud = vision_utils.segment_table(pcd)
+
+    voxel_pc = object_cloud.voxel_down_sample(voxel_size=0.001)
+
+    object_cloud, ind = voxel_pc.remove_radius_outlier(nb_points=40, radius=0.005)
+    object_cloud.paint_uniform_color([0, 1, 0])
+    table_cloud.paint_uniform_color([1, 0, 0])
+
+    if debug:
+        o3d.visualization.draw_geometries([table_cloud, object_cloud])
+
+
+    # for j in range(len(link_array)):
+    #     inp_ch = link_array[j,1].astype(str) + "::link"
+    #     print(inp_ch)
+    #     auto_targetter.get_link_choose(inp_ch)
+    #     # bowl_ch = np.array2string(link_array[j,2])
+    #     bowl_ch = link_array[j,2]
+    #     bowl_ch = bowl_ch.replace('[','').replace(']','')
+    #     bowl_ch = "go_to_home_" + bowl_ch
+    #     auto_targetter.go_to_target('top', bowl_ch)
+    #     print(bowl_ch)
         
 
 if __name__ == "__main__":

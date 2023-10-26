@@ -50,7 +50,12 @@
   <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="filters" value="pointcloud" />
     <arg name="initial_reset" value="true" />
+    <arg name="align_depth" value="true" />
+    <arg name="tf_prefix" value="realsense" />
+    <arg name="allow_no_texture_points" value="true"/>
   </include> -->
+
+  <!-- <node name="tf_camera_rotation" pkg="tf" type="static_transform_publisher" args="0 0 0.5 -0.75 0 -2.55   world camera_depth_optical_frame 50"/> -->
 
 <!--  call to gazebo_ros to spawn a D435i URDF model -->
 <node name="camera_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
