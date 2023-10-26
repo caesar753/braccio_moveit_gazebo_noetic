@@ -60,6 +60,8 @@ class BraccioObjectTargetInterface(object):
 
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('braccio_xy_bb_target', anonymous=True)
+    self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
+    rospy.sleep(1)
 
     group_name = "braccio_arm"
     self.move_group = moveit_commander.MoveGroupCommander(group_name)
@@ -68,12 +70,15 @@ class BraccioObjectTargetInterface(object):
     self.homography = None
 
     self.kinematics = InvKin.Arm3Link()
-    self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
+    
 
   def linkstate_callback(self, data):
     """callback to get link location for cube from gazebo"""
     try:
       self.linkstate_data = data
+      # rospy.loginfo("linkstate_data received") #+ str(self.linkstate_data))
+      # print(self.linkstate_data)
+      return(self.linkstate_data)
     except ValueError:
       pass
 
@@ -88,7 +93,7 @@ class BraccioObjectTargetInterface(object):
 
   def get_box_position(self):
     # x, y, r = self.get_link_position(['unit_box_1::link'])
-    x, y, r = self.get_link_position([self.link_choose])
+    x, y, r = self.get_link_position(self.link_choose)
     return self.transform(x,y,r)
 
   def get_link_choose(self, lk):
@@ -96,13 +101,16 @@ class BraccioObjectTargetInterface(object):
     print(lk)
     print(self.link_choose)
 
+  def print_linkstate(self):
+    print(self.linkstate_data)
+
   def get_link_position(self, link_names):
     """get mean position of a list of links"""
     x = 0
     y = 0
     n = 0
     for l in link_names:
-      ind = self.linkstate_data.name.index(l)
+      ind = self.linkstate_data.name.index(link_names)
       res = self.linkstate_data.pose[ind].position
       x += res.x
       y += res.y
