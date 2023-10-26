@@ -257,35 +257,53 @@ def main():
     # for j in range(len(link_choose)):
     #     print(f"link choose is: {link_choose[j,3]}")  
     link_array = np.array(link_choose)
-    print(f"selected is {np.array2string(link_array)}")
+    print(f"selected are {np.array2string(link_array)}")
 
-    print("starting pointcloud segmentation")
-    debug = True
-    pcd = vision_utils.get_point_cloud_from_ros(debug)
+    ###POINTCLOUD SEGMENTATION - START ###
+    # print("starting pointcloud segmentation")
+    # debug = True
+    # pcd = vision_utils.get_point_cloud_from_ros(debug)
 
-    print ('Table Segmentation')
-    table_cloud, object_cloud = vision_utils.segment_table(pcd)
+    # print ('Table Segmentation')
+    # table_cloud, object_cloud = vision_utils.segment_table(pcd)
 
-    voxel_pc = object_cloud.voxel_down_sample(voxel_size=0.001)
+    # voxel_pc = object_cloud.voxel_down_sample(voxel_size=0.001)
 
-    object_cloud, ind = voxel_pc.remove_radius_outlier(nb_points=40, radius=0.005)
-    object_cloud.paint_uniform_color([0, 1, 0])
-    table_cloud.paint_uniform_color([1, 0, 0])
+    # object_cloud, ind = voxel_pc.remove_radius_outlier(nb_points=40, radius=0.005)
+    # object_cloud.paint_uniform_color([0, 1, 0])
+    # table_cloud.paint_uniform_color([1, 0, 0])
 
-    if debug:
-        o3d.visualization.draw_geometries([table_cloud, object_cloud])
+    # if debug:
+    #     o3d.visualization.draw_geometries([table_cloud, object_cloud])
+    ###POINTCLOUD SEGMENTATION - END ###
 
+    inp_ch = []
+    bowl_ch = []
 
-    # for j in range(len(link_array)):
-    #     inp_ch = link_array[j,1].astype(str) + "::link"
-    #     print(inp_ch)
-    #     auto_targetter.get_link_choose(inp_ch)
-    #     # bowl_ch = np.array2string(link_array[j,2])
-    #     bowl_ch = link_array[j,2]
-    #     bowl_ch = bowl_ch.replace('[','').replace(']','')
-    #     bowl_ch = "go_to_home_" + bowl_ch
-    #     auto_targetter.go_to_target('top', bowl_ch)
-    #     print(bowl_ch)
+    for j in range(len(link_array)):
+        # inp_ch = link_array[j,1].astype(str) + "::link"
+        inp_ch.append(link_array[j,1].astype(str) + "::link")
+        print(inp_ch[j])
+        # auto_targetter.get_link_choose(inp_ch)
+        # bowl_ch = np.array2string(link_array[j,2])
+        # bowl_ch[j] = link_array[j,2]
+        # bowl_ch[j] = bowl_ch.replace('[','').replace(']','')
+        # bowl_ch = "go_to_home_" + bowl_ch
+        bowl = link_array[j,2]
+        bowl = bowl.replace('[','').replace(']','')
+        bowl = "go_to_home_" + bowl
+        bowl_ch.append(bowl)
+        # auto_targetter.go_to_target('top', bowl_ch)
+        print(bowl_ch[j])
+    
+    target_file = open("targets.txt", "w+")
+    
+    target_ch = np.column_stack((inp_ch, bowl_ch))
+    target_ch = np.array2string(target_ch)
+    print(target_ch)
+    
+    target_file.write(target_ch)
+    target_file.close()
         
 
 if __name__ == "__main__":
