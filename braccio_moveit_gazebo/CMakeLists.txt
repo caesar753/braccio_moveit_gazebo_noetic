@@ -148,6 +148,9 @@ add_executable(targetter_step cpp/auto_targetter_step.cpp)
 target_link_libraries(targetter_step ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 install(DIRECTORY launch targetter_step DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
+add_executable(get_target cpp/get_target_from_file.cpp)
+target_link_libraries(get_target ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+install(DIRECTORY launch get_target DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 # add_executable(invkin cpp/InvKin.cpp)
 # target_link_libraries(invkin ${catkin_LIBRARIES})
