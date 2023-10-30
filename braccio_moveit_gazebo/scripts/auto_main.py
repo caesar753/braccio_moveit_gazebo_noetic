@@ -317,9 +317,9 @@ def main():
     matrix_msg.targets = target_msg_arr
     print(matrix_msg)
 
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(10)
 
-    target_pub = rospy.Publisher('/targets', matrix, queue_size=100)
+    target_pub = rospy.Publisher('/targets', matrix, queue_size=10)
 
     while not rospy.is_shutdown():
         target_pub.publish(matrix_msg)

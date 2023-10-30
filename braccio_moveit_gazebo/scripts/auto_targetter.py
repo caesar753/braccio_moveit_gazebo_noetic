@@ -8,6 +8,7 @@ import time
 from gazebo_msgs.msg import LinkStates, ModelState
 from geometry_msgs.msg import Pose
 from gazebo_msgs.srv import SetModelState
+from custom_msgs.msg import matrix
 
 ## END_SUB_TUTORIAL
 import numpy as np
@@ -61,8 +62,13 @@ class BraccioObjectTargetInterface(object):
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('braccio_xy_bb_target', anonymous=True)
     self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
+    self.targets_list = []
+    self.i = 0
+    self.target_matrix = rospy.Subscriber("/targets", matrix, self.callback_matrix)
     #sleep else ros cannot get the robot state
     rospy.sleep(1)
+    #unregister targets subscribers
+    self.target_matrix.unregister()
 
     group_name = "braccio_arm"
     self.move_group = moveit_commander.MoveGroupCommander(group_name)
@@ -412,3 +418,14 @@ class BraccioObjectTargetInterface(object):
                 
     self.link_choose = link_choose
     return self.link_choose
+  
+  def callback_matrix(self,msg):
+        # rospy.loginfo(msg)
+    for i in range(len(msg.targets)):
+        # print(i)
+        # print(msg.targets[i])
+        self.targets_list.append(msg.targets[i])
+        self.i = i
+
+  def return_targets(self):
+    return(self.i, self.targets_list)
