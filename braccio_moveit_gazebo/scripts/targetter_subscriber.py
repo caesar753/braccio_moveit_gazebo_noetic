@@ -13,5 +13,5 @@ if __name__ == '__main__':
     rate = rospy.Rate(100)
 
     for j in range(targetter.i+1):
-        targetter.get_link_choose(targetter.targets_list[j].sherd)
-        targetter.go_to_target('top', targetter.targets_list[j].home)
+        # targetter.get_link_choose(targetter.targets_list[j].sherd)
+        targetter.go_to_target('top', targetter.targets_list[j].home, targetter.targets_list[j].sherd)

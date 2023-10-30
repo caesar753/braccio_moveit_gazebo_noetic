@@ -98,15 +98,16 @@ class BraccioObjectTargetInterface(object):
     else:
       raise ValueError('run or load calibration first!')
 
-  def get_box_position(self):
+  def get_box_position(self,lk):
     # x, y, r = self.get_link_position(['unit_box_1::link'])
-    x, y, r = self.get_link_position(self.link_choose)
+    # x, y, r = self.get_link_position(self.link_choose)
+    x, y, r = self.get_link_position(lk)
     return self.transform(x,y,r)
 
-  def get_link_choose(self, lk):
-    self.link_choose = lk
-    print(lk)
-    print(self.link_choose)
+  # def get_link_choose(self, lk):
+  #   self.link_choose = lk
+  #   print(lk)
+  #   print(self.link_choose)
 
   def print_linkstate(self):
     print(self.linkstate_data)
@@ -356,8 +357,8 @@ class BraccioObjectTargetInterface(object):
         v = float(tst)
     self.go_gripper(v)
 
-  def go_to_target(self, how, bowl):
-    x,y,r = self.get_box_position()
+  def go_to_target(self, how, bowl, lk):
+    x,y,r = self.get_box_position(lk)
     print(x, y, r)
     return self.go_to_xy(x, y, r, how, bowl)
   
@@ -419,6 +420,7 @@ class BraccioObjectTargetInterface(object):
     self.link_choose = link_choose
     return self.link_choose
   
+  #method to subscribe to the matrix message where sherds and homes are published
   def callback_matrix(self,msg):
         # rospy.loginfo(msg)
     for i in range(len(msg.targets)):
@@ -427,5 +429,6 @@ class BraccioObjectTargetInterface(object):
         self.targets_list.append(msg.targets[i])
         self.i = i
 
+  #method to get the targets outside the callback_matrix method
   def return_targets(self):
     return(self.i, self.targets_list)

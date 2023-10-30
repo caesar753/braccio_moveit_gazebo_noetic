@@ -278,30 +278,13 @@ def main():
     #     o3d.visualization.draw_geometries([table_cloud, object_cloud])
     ###POINTCLOUD SEGMENTATION - END ###
 
-    # inp_ch = []
-    # bowl_ch = []
-
-    # for j in range(len(link_array)):
-    #     # inp_ch = link_array[j,1].astype(str) + "::link"
-    #     inp_ch.append(link_array[j,1].astype(str) + "::link")
-    #     print(inp_ch[j])
-    #     # auto_targetter.get_link_choose(inp_ch)
-    #     bowl = link_array[j,2]
-    #     bowl = bowl.replace('[','').replace(']','')
-    #     bowl = "go_to_home_" + bowl
-    #     bowl_ch.append(bowl)
-    #     # auto_targetter.go_to_target('top', bowl_ch)
-    #     print(bowl_ch[j])
-
     target_msg_arr = []
     for j in range(len(link_array)):
         target_msg = target()
         target_msg.nr = j
         inp_ch = link_array[j,1].astype(str) + "::link"
-        # inp_ch = inp_ch.replace('\'','').replace('\'','')
         print(inp_ch)
         target_msg.sherd = inp_ch
-        # auto_targetter.get_link_choose(inp_ch)
         bowl_ch = link_array[j,2].astype(str)
         bowl_ch = bowl_ch.replace('\'','').replace('\'','')
         bowl_ch = bowl_ch.replace('[','').replace(']','')
@@ -309,8 +292,6 @@ def main():
         print(bowl_ch)
         target_msg.home = bowl_ch
         target_msg_arr.append(target_msg)
-        # print(bowl_ch)
-        # auto_targetter.go_to_target('top', bowl_ch)
     
     
     matrix_msg = matrix()
