@@ -32,7 +32,7 @@
   <!-- Dependencies can be catkin packages or system dependencies -->
   <!-- Examples: -->
   <!-- Use build_depend for packages you need at compile time: -->
-  <!--   <build_depend>message_generation</build_depend> -->
+    <!-- <build_depend>message_generation</build_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use run_depend for packages you need at runtime: -->
@@ -44,16 +44,19 @@
 
   <build_depend>message_generation</build_depend>
   <run_depend>message_runtime</run_depend>
+  
 
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>gazebo_ros</build_depend>
+  <build_depend>custom_msgs</build_depend>
 
   <run_depend>gazebo_ros</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>custom_msgs</run_depend>
 
   <run_depend>kuka_manipulator_description</run_depend>
   <run_depend>gazebo_ros</run_depend>
@@ -63,6 +66,8 @@
   <run_depend>effort_controllers</run_depend>
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>controller_manager</run_depend>
+
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

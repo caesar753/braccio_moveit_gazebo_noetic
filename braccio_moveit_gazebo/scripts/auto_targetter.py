@@ -61,6 +61,7 @@ class BraccioObjectTargetInterface(object):
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('braccio_xy_bb_target', anonymous=True)
     self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
+    #sleep else ros cannot get the robot state
     rospy.sleep(1)
 
     group_name = "braccio_arm"

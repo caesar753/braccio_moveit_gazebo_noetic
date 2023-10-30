@@ -6,6 +6,7 @@ import auto_targetter
 import measure_inference
 import image_listener
 import vision_utils
+from custom_msgs.msg import target, matrix
 
 import open3d as o3d
 
@@ -277,33 +278,53 @@ def main():
     #     o3d.visualization.draw_geometries([table_cloud, object_cloud])
     ###POINTCLOUD SEGMENTATION - END ###
 
-    inp_ch = []
-    bowl_ch = []
+    # inp_ch = []
+    # bowl_ch = []
 
+    # for j in range(len(link_array)):
+    #     # inp_ch = link_array[j,1].astype(str) + "::link"
+    #     inp_ch.append(link_array[j,1].astype(str) + "::link")
+    #     print(inp_ch[j])
+    #     # auto_targetter.get_link_choose(inp_ch)
+    #     bowl = link_array[j,2]
+    #     bowl = bowl.replace('[','').replace(']','')
+    #     bowl = "go_to_home_" + bowl
+    #     bowl_ch.append(bowl)
+    #     # auto_targetter.go_to_target('top', bowl_ch)
+    #     print(bowl_ch[j])
+
+    target_msg_arr = []
     for j in range(len(link_array)):
-        # inp_ch = link_array[j,1].astype(str) + "::link"
-        inp_ch.append(link_array[j,1].astype(str) + "::link")
-        print(inp_ch[j])
+        target_msg = target()
+        target_msg.nr = j
+        inp_ch = link_array[j,1].astype(str) + "::link"
+        # inp_ch = inp_ch.replace('\'','').replace('\'','')
+        print(inp_ch)
+        target_msg.sherd = inp_ch
         # auto_targetter.get_link_choose(inp_ch)
-        # bowl_ch = np.array2string(link_array[j,2])
-        # bowl_ch[j] = link_array[j,2]
-        # bowl_ch[j] = bowl_ch.replace('[','').replace(']','')
-        # bowl_ch = "go_to_home_" + bowl_ch
-        bowl = link_array[j,2]
-        bowl = bowl.replace('[','').replace(']','')
-        bowl = "go_to_home_" + bowl
-        bowl_ch.append(bowl)
+        bowl_ch = link_array[j,2].astype(str)
+        bowl_ch = bowl_ch.replace('\'','').replace('\'','')
+        bowl_ch = bowl_ch.replace('[','').replace(']','')
+        bowl_ch = "go_to_home_" + bowl_ch
+        print(bowl_ch)
+        target_msg.home = bowl_ch
+        target_msg_arr.append(target_msg)
+        # print(bowl_ch)
         # auto_targetter.go_to_target('top', bowl_ch)
-        print(bowl_ch[j])
     
-    target_file = open("targets.txt", "w+")
     
-    target_ch = np.column_stack((inp_ch, bowl_ch))
-    target_ch = np.array2string(target_ch)
-    print(target_ch)
-    
-    target_file.write(target_ch)
-    target_file.close()
+    matrix_msg = matrix()
+    matrix_msg.targets = target_msg_arr
+    print(matrix_msg)
+
+    rate = rospy.Rate(5)
+
+    target_pub = rospy.Publisher('/targets', matrix, queue_size=100)
+
+    while not rospy.is_shutdown():
+        target_pub.publish(matrix_msg)
+        # rospy.spin()
+        rate.sleep()
         
 
 if __name__ == "__main__":
