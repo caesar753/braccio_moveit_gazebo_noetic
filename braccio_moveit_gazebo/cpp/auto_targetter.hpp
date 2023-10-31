@@ -27,7 +27,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <gazebo_msgs/LinkStates.h>
 #include <gazebo_msgs/SetModelState.h>
-#include <custom_msgs/for_cpp.h>
+#include <custom_msgs/target.h>
 #include <custom_msgs/matrix.h>
 
 
@@ -95,6 +95,9 @@ class BraccioObjectInterface{
     gazebo_msgs::LinkStates linkstate_data;
     ros::Subscriber states_sub;
     std::string link_choose;
+    std::vector<custom_msgs::matrix> targets_list;
+    int i;
+    ros::Subscriber target_matrix;
 
 
     public:
@@ -103,6 +106,14 @@ class BraccioObjectInterface{
         moveit::planning_interface::MoveGroupInterface::Options gripper_options("braccio_gripper", "robot_description", nh_);
         // arm_group_ = moveit::planning_interface::MoveGroupInterface(arm_options);
         // gripper = moveit::planning_interface::MoveGroupInterface(gripper_options);
+
+        targets_list.clear();// = std::vector<custom_msgs::matrix>(); // Replace YourMessageType with the appropriate message type
+        i = 0;
+        target_matrix = nh_.subscribe("/targets", 1, &BraccioObjectInterface::callbackMatrix, this);
+        // Sleep to allow ROS to get the robot state
+        ros::Duration(1.0).sleep();
+        // Unregister the targets subscriber
+        target_matrix.shutdown();
     }
 
     // void callback_received_sherds(const custom_msgs::for_cpp& msg){
@@ -603,6 +614,17 @@ class BraccioObjectInterface{
         std::vector<double> joint_goal = arm_group_.getCurrentJointValues();
         
         goJoint(joint_goal[0], 2.5, joint_goal[2], joint_goal[3]);
+    }
+
+    void callbackMatrix(const custom_msgs::matrix::ConstPtr& msg) {
+        for (size_t i = 0; i < msg->targets.size(); ++i) {
+            targets_list.push_back(msg->targets[i]);
+            this->i = i;
+        }
+    }
+
+    std::pair<int, std::vector<custom_msgs::matrix>> returnTargets() {
+        return std::make_pair(i, targets_list);
     }
 
 };

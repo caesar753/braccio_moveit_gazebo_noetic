@@ -15,10 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     gazebo_ros
     message_generation
-    moveit_ros_planning_interface
-    OpenCV 
     custom_msgs
-    )
+    moveit_ros_planning_interface
+    OpenCV )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -144,9 +143,9 @@ include_directories(include ${OpenCV_INCLUDE_DIRS})
 # add_executable(targetter_step cpp/auto_targetter_step_by_step.cpp)
 # target_link_libraries(targetter_step ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
-add_executable(targetter_step cpp/auto_targetter_step.cpp)
-target_link_libraries(targetter_step ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-install(DIRECTORY launch targetter_step DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+# add_executable(targetter_step cpp/auto_targetter_step.cpp)
+# target_link_libraries(targetter_step ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+# install(DIRECTORY launch targetter_step DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 add_executable(get_target cpp/get_target_from_file.cpp)
 target_link_libraries(get_target ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})

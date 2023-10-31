@@ -8,6 +8,7 @@ import time
 from gazebo_msgs.msg import LinkStates, ModelState
 from geometry_msgs.msg import Pose
 from gazebo_msgs.srv import SetModelState
+from custom_msgs.msg import matrix
 
 ## END_SUB_TUTORIAL
 import numpy as np
@@ -60,6 +61,14 @@ class BraccioObjectTargetInterface(object):
 
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('braccio_xy_bb_target', anonymous=True)
+    self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
+    self.targets_list = []
+    self.i = 0
+    self.target_matrix = rospy.Subscriber("/targets", matrix, self.callback_matrix)
+    #sleep else ros cannot get the robot state
+    rospy.sleep(1)
+    #unregister targets subscribers
+    self.target_matrix.unregister()
 
     group_name = "braccio_arm"
     self.move_group = moveit_commander.MoveGroupCommander(group_name)
@@ -68,12 +77,15 @@ class BraccioObjectTargetInterface(object):
     self.homography = None
 
     self.kinematics = InvKin.Arm3Link()
-    self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
+    
 
   def linkstate_callback(self, data):
     """callback to get link location for cube from gazebo"""
     try:
       self.linkstate_data = data
+      # rospy.loginfo("linkstate_data received") #+ str(self.linkstate_data))
+      # print(self.linkstate_data)
+      return(self.linkstate_data)
     except ValueError:
       pass
 
@@ -86,15 +98,19 @@ class BraccioObjectTargetInterface(object):
     else:
       raise ValueError('run or load calibration first!')
 
-  def get_box_position(self):
+  def get_box_position(self,lk):
     # x, y, r = self.get_link_position(['unit_box_1::link'])
-    x, y, r = self.get_link_position([self.link_choose])
+    # x, y, r = self.get_link_position(self.link_choose)
+    x, y, r = self.get_link_position(lk)
     return self.transform(x,y,r)
 
-  def get_link_choose(self, lk):
-    self.link_choose = lk
-    print(lk)
-    print(self.link_choose)
+  # def get_link_choose(self, lk):
+  #   self.link_choose = lk
+  #   print(lk)
+  #   print(self.link_choose)
+
+  def print_linkstate(self):
+    print(self.linkstate_data)
 
   def get_link_position(self, link_names):
     """get mean position of a list of links"""
@@ -102,7 +118,7 @@ class BraccioObjectTargetInterface(object):
     y = 0
     n = 0
     for l in link_names:
-      ind = self.linkstate_data.name.index(l)
+      ind = self.linkstate_data.name.index(link_names)
       res = self.linkstate_data.pose[ind].position
       x += res.x
       y += res.y
@@ -341,8 +357,8 @@ class BraccioObjectTargetInterface(object):
         v = float(tst)
     self.go_gripper(v)
 
-  def go_to_target(self, how, bowl):
-    x,y,r = self.get_box_position()
+  def go_to_target(self, how, bowl, lk):
+    x,y,r = self.get_box_position(lk)
     print(x, y, r)
     return self.go_to_xy(x, y, r, how, bowl)
   
@@ -403,3 +419,16 @@ class BraccioObjectTargetInterface(object):
                 
     self.link_choose = link_choose
     return self.link_choose
+  
+  #method to subscribe to the matrix message where sherds and homes are published
+  def callback_matrix(self,msg):
+        # rospy.loginfo(msg)
+    for i in range(len(msg.targets)):
+        # print(i)
+        # print(msg.targets[i])
+        self.targets_list.append(msg.targets[i])
+        self.i = i
+
+  #method to get the targets outside the callback_matrix method
+  def return_targets(self):
+    return(self.i, self.targets_list)
