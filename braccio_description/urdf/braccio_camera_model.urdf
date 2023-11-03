@@ -7,13 +7,30 @@
           <controlPeriod>0.001</controlPeriod>
         </plugin>
     </gazebo>
+    
+    <link name="camera_mount">
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0"/>
+      <geometry>
+        <mesh filename="package://braccio_arduino_ros_rviz/stl/geometry.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver_gray"/>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0"/>
+      <geometry>
+        <mesh filename="package://braccio_arduino_ros_rviz/stl/geometry.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  
     <link name="base_link">
         <visual>
             <geometry>
                 <cylinder length="0.01" radius=".053" />
             </geometry>
             <material name="black" />
-            <origin rpy="0 0 0" xyz="0 0 0.0" />
+            <origin rpy="0 0 0" xyz="0 0 0" />
         </visual>
         <inertial>
             <origin rpy="0 0 0" xyz="0 0 0" />
@@ -170,6 +187,12 @@
         </collision>
     </link>
 
+    <joint name="camera" type="fixed">
+        <parent link="world"/>
+        <origin rpy="0 0 0" xyz="0 0 -1.57079632679"/>
+        <child link="base_link"/>
+    </joint>
+
     <joint name="base_joint" type="revolute">
         <axis xyz="0 0 -1" />
         <limit effort="1.0" lower="0.0" upper="3.1416" velocity="1.0" />
@@ -304,17 +327,10 @@
     <selfCollide>true</selfCollide>
     <material>Gazebo/Turquoise</material>
   </gazebo>
-  <!-- <link name="world"/>
+  <link name="world"/>
   <joint name="world_joint" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-  </joint> -->
-
-    <link name="camera_mount_base"/>
-    <joint name="camera_mount_joint" type="continuous">
-        <parent link="camera_mount_base"/>
-        <child link="base_link"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    </joint> 
+  </joint>
 </robot>

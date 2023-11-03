@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<robot name="camera_pippo" xmlns:xacro="http://ros.org/wiki/xacro">
+  
+  <xacro:macro name="camera_mount" params="parent">
+    
+    <xacro:property name="M_PI" value="3.1415926535897931" />
+    <xacro:property name="width" value="0.01" />
+    <xacro:property name="lenght" value="0.5" />
+    <xacro:property name="height" value="0.01" />
+
+    <material name="${name}_aluminum">
+    <color rgba="0.5 0.5 0.5 1"/>
+    </material>
+
+    <link name="${name}_base_link">
+      <visual>
+        <origin xyz="0.5 0.5 0.0" rpy="0 0 1.57"/>
+            <geometry>
+            <box size="${width} ${lenght} ${height}"/>
+            <!-- <mesh filename="$(find realsense2_description)/meshes/d435.dae" /> -->
+            <!-- <mesh filename="package://realsense2_description/meshes/d435/d435.dae" /> -->
+            </geometry>
+            <material name="${name}_aluminum"/>
+      </visual>
+        <collision>
+            <origin xyz="0.5 0.5 0.0" rpy="0 0 0"/>
+            <geometry>
+            <box size="${width} ${lenght} ${height}"/>
+            </geometry>
+        </collision>
+      <inertial>
+        <!-- The following are not reliable values, and should not be used for modeling -->
+        <mass value="1.000" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+    </link>
+
+    <link name="${name}_pillar_link">
+      <visual>
+        <origin xyz="0.0 0.5 0.0" rpy="$0 0 ${M_PI}/2"/>
+            <geometry>
+            <box size="${width} ${lenght} ${height}"/>
+        </geometry>
+        <material name="${name}_aluminum"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0 0.5 0.0" rpy="0 0 ${M_PI}/2"/>
+        <geometry>
+        <box size="$${width} ${lenght} ${height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="1.000" />
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}/2"/>
+        <inertia ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+    </link>
+
+    <joint name="${name}_pillar_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0.0 0.005 0.245"/>
+      <parent link="${name}_base_link"/>
+      <child link="${name}_pillar_link" />
+    </joint>
+
+    <!-- <joint name="${name}_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${name}_base_link" />
+    </joint> -->
+
+    </xacro:macro>
+    
+    <xacro:camera_mount parent="world">
+          <origin xyz="0.0 0.0 0.5" rpy="0.0 0.0 0.0" />
+    </xacro:camera_mount>
+
+</robot>

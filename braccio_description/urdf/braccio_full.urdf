@@ -170,6 +170,70 @@
         </collision>
     </link>
 
+    <link name="camera_mount_base">
+      <inertial>
+        <origin xyz="0.5 0.5 0.0" />
+        <mass value="1.0" />
+        <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+      <visual>
+        <origin rpy="0 0 0" xyz="0.5 0.5 0.0"/>
+        <geometry>
+          <box size="0.1 0.5 0.01"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin rpy="0.0 0.0 0.0" xyz="0.5 0.5 0.0"/>
+        <geometry>
+          <box size="0.1 0.5 0.01" />
+        </geometry>
+      </collision>
+    </link>
+    <link name="camera_mount_pillar">
+      <inertial>
+        <origin rpy="0 0 1.57" xyz="0 0.5 0" />
+        <mass value="1.0" />
+        <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+      </inertial>
+      <visual>
+        <origin rpy="0 0 1.57" xyz="0.0 0.5 0"/>
+        <geometry>
+          <box size="0.01 0.1 0.5"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin rpy="0 0 1.57" xyz="0.0 0.5 0"/>
+        <geometry>
+          <box size="0.01 0.1 0.5" />
+        </geometry>
+      </collision>
+    </link>
+    <link name="camera_top_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0.0 0.25 0.5"/>
+        <geometry>
+          <box size="0.1 0.5 0.01"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0.0 0.25 0.5"/>
+        <geometry>
+          <box size="0.1 0.5 0.1" />
+        </geometry>
+      </collision>
+    </link>
+  
+    <joint name="mount_pillar_joint" type="fixed">
+      <parent link="camera_mount_base"/>
+      <origin rpy="0 0 0" xyz="0.0 0.005 0.245"/>
+      <child link="camera_mount_pillar"/>
+    </joint>
+    <joint name="pillar_top_joint" type="fixed">
+      <parent link="camera_mount_base"/>
+      <origin rpy="0 0 0" xyz="0.0 0.01 0.0"/>
+      <child link="camera_top_link"/>
+    </joint>
+
     <joint name="base_joint" type="revolute">
         <axis xyz="0 0 -1" />
         <limit effort="1.0" lower="0.0" upper="3.1416" velocity="1.0" />
@@ -304,17 +368,12 @@
     <selfCollide>true</selfCollide>
     <material>Gazebo/Turquoise</material>
   </gazebo>
-  <!-- <link name="world"/>
+  <link name="world"/>
   <joint name="world_joint" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-  </joint> -->
+  </joint>
 
-    <link name="camera_mount_base"/>
-    <joint name="camera_mount_joint" type="continuous">
-        <parent link="camera_mount_base"/>
-        <child link="base_link"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-    </joint> 
+
 </robot>

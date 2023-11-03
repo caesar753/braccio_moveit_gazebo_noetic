@@ -1,0 +1,97 @@
+<robot name="mounting">
+  
+  <!-- <link name="camera_mount">
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0"/>
+      <geometry>
+        <mesh filename="package://braccio_arduino_ros_rviz/stl/geometry.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver_gray"/>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0"/>
+      <geometry>
+        <mesh filename="package://braccio_arduino_ros_rviz/stl/geometry.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="camera" type="fixed">
+    <parent link="world"/>
+    <origin rpy="0 0 0" xyz="0 0 -1.57079632679"/>
+    <child link="base_link"/>
+  </joint> -->
+
+  <link name="camera_mount_base">
+    <inertial>
+      <origin xyz="0.5 0.5 0.0" />
+      <mass value="1.0" />
+      <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0.25 0.0"/>
+      <geometry>
+        <box size="0.01 0.5 0.01"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.25 0.0"/>
+      <geometry>
+        <box size="0.01 0.5 0.01" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="camera_mount_pillar">
+    <inertial>
+      <origin rpy="0 0 1.57" xyz="0 0.5 0" />
+      <mass value="1.0" />
+      <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 1.57" xyz="0.0 0.5 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.5"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 1.57" xyz="0.0 0.5 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.5" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="camera_top_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0.25 0.25"/>
+      <geometry>
+        <box size="0.01 0.5 0.01"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.0 0.25 0.25"/>
+      <geometry>
+        <box size="0.01 0.5 0.1" />
+      </geometry>
+    </collision>
+  </link>
+  
+  
+<link name="world"/>
+<joint name="world_joint" type="fixed">
+  <parent link="world"/>
+  <child link="camera_mount_base"/>
+  <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.005"/>
+</joint>
+
+  <joint name="mount_pillar_joint" type="fixed">
+    <parent link="camera_mount_base"/>
+    <origin rpy="0 0 0" xyz="0.0 0.005 0.245"/>
+    <child link="camera_mount_pillar"/>
+  </joint>
+  <joint name="pillar_top_joint" type="fixed">
+    <parent link="camera_mount_pillar"/>
+    <origin rpy="0 0 0" xyz="0.0 -0.005 -0.005"/>
+    <child link="camera_top_link"/>
+  </joint>
+
+
+</robot>
