@@ -36,6 +36,8 @@
 #include <gazebo_msgs/LinkStates.h>
 
 #include <nlohmann/json.hpp>
+// #include <jsoncpp/json/json.h>
+// #include <Eigen/Dense>
 
 #include "InvKin.hpp"
 
@@ -80,6 +82,22 @@ std::pair<double, double> get_other_angles(double theta_shoulder) {
   return std::make_pair(theta_wrist, theta_elbow);
 }
 
+double calculateMeanNorm(const std::vector<std::vector<double>>& arr) {
+    double sum = 0.0;
+
+    for (const std::vector<double>& vec : arr) {
+        double squaredSum = 0.0;
+
+        for (double val : vec) {
+            squaredSum += val * val;
+        }
+
+        sum += std::sqrt(squaredSum);
+    }
+
+    return sum / arr.size();
+}
+
 std::map<std::string, std::function<void()> > call;
 
 class BraccioObjectInterface{
@@ -89,6 +107,8 @@ class BraccioObjectInterface{
     moveit::planning_interface::MoveGroupInterface arm_group_;
     moveit::planning_interface::MoveGroupInterface gripper;
     cv::Mat homography_;
+    double L;
+    double l;
 
     // tf2_ros::Buffer tf_buffer;
     // tf2_ros::TransformListener tf_listener(tf_buffer);
@@ -109,11 +129,11 @@ class BraccioObjectInterface{
 
         targets_list.clear();// = std::vector<custom_msgs::matrix>(); // Replace YourMessageType with the appropriate message type
         i = 0;
-        target_matrix = nh_.subscribe("/targets", 1, &BraccioObjectInterface::callbackMatrix, this);
+        // target_matrix = nh_.subscribe("/targets", 1, &BraccioObjectInterface::callbackMatrix, this);
         // Sleep to allow ROS to get the robot state
-        ros::Duration(1.0).sleep();
+        // ros::Duration(1.0).sleep();
         // Unregister the targets subscriber
-        target_matrix.shutdown();
+        // target_matrix.shutdown();
     }
 
     // void callback_received_sherds(const custom_msgs::for_cpp& msg){
@@ -182,94 +202,381 @@ class BraccioObjectInterface{
         }
     }
 
-    void loadCalibrate() {
-    try {
-        std::ifstream file("calibration.json");
-        if (!file.is_open()) {
-            std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
-            // return;
-            calibrate();
-        }
-        json calib;
-        file >> calib;
-        file.close();
+    // void loadCalibrate() {
+    // try {
+    //     std::ifstream file("calibration.json");
+    //     if (!file.is_open()) {
+    //         std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+    //         // return;
+    //         calibrate();
+    //     }
 
-        std::vector<std::vector<double>> src_pts = calib["src_pts"];
-        std::vector<std::vector<double>> dst_angs = calib["dst_angs"];
+    //     json calib = json::parse(file);
+    //     // file >> calib;
+    //     file.close();
 
-        std::vector<double> s_ret_pts, s_ext_pts;
-        for (int i = 1; i < src_pts.size(); i += 2) {
-            s_ret_pts.push_back(src_pts[i][0]);
-            s_ret_pts.push_back(src_pts[i][1]);
-            s_ext_pts.push_back(src_pts[i + 1][0]);
-            s_ext_pts.push_back(src_pts[i + 1][1]);
-        }
+    //     const auto s = calib.dump(); // serialize to std::string
+    //     std::cout << "JSON string: " << s << '\n';
+    //     std::cout << "JSON size  : " << s.size() << '\n';
 
-        std::vector<double> arr(s_ret_pts.size());
-        for (int i = 0; i < s_ret_pts.size(); i++) {
-            arr[i] = s_ret_pts[i] - s_ext_pts[i];
-        }
+    //     const json& src_pts_js = calib["src_pts"];
+    //     const json& dst_angs_js = calib["dst_angs"];
 
-        // Define THETA_EXT and THETA_RET
-        double THETA_EXT = 0.0;  // Replace with the actual values
-        double THETA_RET = 0.0;  // Replace with the actual values
 
-        double L = cv::norm(arr) / s_ret_pts.size() / (cos(THETA_EXT) - cos(THETA_RET));
+    //     std::vector<std::vector<double>> src_pts;
+    //     std::vector<std::vector<double>> dst_angs;
 
-        for (int i = 0; i < s_ret_pts.size(); i += 2) {
-            arr[0] = s_ret_pts[i] - src_pts[0][0];
-            arr[1] = s_ret_pts[i + 1] - src_pts[0][1];
-        }
+    //     // std::sprintf(src_pts[0]);
 
-        double l1 = cv::norm(arr) / (s_ret_pts.size() / 2) - L * cos(THETA_RET);
+    //     for (const auto& point : src_pts_js) {
+    //         src_pts.push_back({point[0].get<double>(), point[1].get<double>()});
+    //     }
 
-        for (int i = 0; i < s_ext_pts.size(); i += 2) {
-            arr[0] = s_ext_pts[i] - src_pts[0][0];
-            arr[1] = s_ext_pts[i + 1] - src_pts[0][1];
-        }
+    //     std::vector<std::vector<double>> s_ret_pts, s_ext_pts;
+    //     for (int i = 1; i < src_pts.size(); i += 2) {
+    //         s_ret_pts.push_back(src_pts[i]);//[0]);
+    //         // s_ret_pts.push_back(src_pts[i][1]);
+    //         s_ext_pts.push_back(src_pts[i + 1]);//[0]);
+    //         // s_ext_pts.push_back(src_pts[i + 1][1]);
+    //     }
 
-        double l2 = cv::norm(arr) / (s_ext_pts.size() / 2) - L * cos(THETA_EXT);
+    //     std::vector<std::vector<double>> arr;//(s_ret_pts.size());
+    //     for (int i = 0; i < s_ret_pts.size(); i++) {
+    //         // arr[i] = s_ret_pts[i] - s_ext_pts[i];
+    //         std::vector<double> arr_i(2);
+    //         arr_i[0] = s_ret_pts[i][0] - s_ext_pts[i][0];
+    //         arr_i[1] = s_ret_pts[i][1] - s_ext_pts[i][1];
+    //         arr.push_back(arr_i);
+    //     }
 
-        double l = (l1 + l2) / 2;
+    //     double sum_of_squares = 0.0;
+    //     for (const auto& v : arr) {
+    //         sum_of_squares += v[0] * v[0] + v[1] * v[1];
+    //     }
 
-        std::vector<std::vector<double>> dst_pts = {{0, 0}};
+    //     // Define THETA_EXT and THETA_RET
+    //     // double THETA_EXT = 0.0;  // Replace with the actual values
+    //     // double THETA_RET = 0.0;  // Replace with the actual values
 
-        for (const std::vector<double>& dst_ang : dst_angs) {
-            double phi = dst_ang[0];
-            double rho = L * cos(dst_ang[1]) + l;
-            double x = rho * cos(phi);
-            double y = rho * sin(phi);
-            dst_pts.push_back({x, y});
-        }
+    //     // double L = cv::norm(arr) / s_ret_pts.size() / (cos(THETA_EXT) - cos(THETA_RET));
+    //     double L = sqrt(sum_of_squares) / (cos(THETA_EXT) - cos(THETA_RET));
 
-        cv::Mat src_pts_mat(src_pts.size(), 2, CV_64F);
-        for (int i = 0; i < src_pts.size(); i++) {
-            src_pts_mat.at<double>(i, 0) = src_pts[i][0];
-            src_pts_mat.at<double>(i, 1) = src_pts[i][1];
-        }
+    //     // for (int i = 0; i < s_ret_pts.size(); i += 2) {
+    //     //     arr[0] = s_ret_pts[i] - src_pts[0][0];
+    //     //     arr[1] = s_ret_pts[i + 1] - src_pts[0][1];
+    //     // }
+    //     std::vector<std::vector<double>> arr1;
+    //     for (size_t i = 0; i < s_ret_pts.size(); ++i) {
+    //         std::vector<double> arr1_i(2);
+    //         arr1_i[0] = s_ret_pts[i][0] - src_pts[0][0];
+    //         arr1_i[1] = s_ret_pts[i][1] - src_pts[0][1];
+    //         arr1.push_back(arr1_i);
+    //     }
 
-        cv::Mat dst_pts_mat(dst_pts.size(), 2, CV_64F);
-        for (int i = 0; i < dst_pts.size(); i++) {
-            dst_pts_mat.at<double>(i, 0) = dst_pts[i][0];
-            dst_pts_mat.at<double>(i, 1) = dst_pts[i][1];
-        }
+    //     // double l1 = cv::norm(arr) / (s_ret_pts.size() / 2) - L * cos(THETA_RET);
 
-        cv::Mat h = cv::findHomography(src_pts_mat, dst_pts_mat);
-        homography_ = h;
+    //     // for (int i = 0; i < s_ext_pts.size(); i += 2) {
+    //     //     arr[0] = s_ext_pts[i] - src_pts[0][0];
+    //     //     arr[1] = s_ext_pts[i + 1] - src_pts[0][1];
+    //     // }
+
+    //     // double l2 = cv::norm(arr) / (s_ext_pts.size() / 2) - L * cos(THETA_EXT);
+
+    //     // double l = (l1 + l2) / 2;
+
+    //     double l1 = 0.0;
+    //     for (const auto& v : arr1) {
+    //         l1 += sqrt(v[0] * v[0] + v[1] * v[1]);
+    //     }
+    //     l1 /= s_ret_pts.size();
+
+    //     std::vector<std::vector<double>> arr2;
+    //     for (size_t i = 0; i < s_ext_pts.size(); ++i) {
+    //         std::vector<double> arr2_i(2);
+    //         arr2_i[0] = s_ext_pts[i][0] - src_pts[0][0];
+    //         arr2_i[1] = s_ext_pts[i][1] - src_pts[0][1];
+    //         arr2.push_back(arr2_i);
+    //     }
+
+    //     double l2 = 0.0;
+    //     for (const auto& v : arr2) {
+    //         l2 += sqrt(v[0] * v[0] + v[1] * v[1]);
+    //     }
+    //     l2 /= s_ext_pts.size();
+
+    //     double l = (l1 + l2) / 2;
+
+    //     std::vector<std::vector<double>> dst_pts = {{0, 0}};
+
+    //     for (const std::vector<double>& dst_ang : dst_angs) {
+    //         double phi = dst_ang[0];
+    //         double rho = L * cos(dst_ang[1]) + l;
+    //         double x = rho * cos(phi);
+    //         double y = rho * sin(phi);
+    //         dst_pts.push_back({x, y});
+    //     }
+
+    //     cv::Mat src_pts_mat(src_pts.size(), 2, CV_64F);
+    //     for (int i = 0; i < src_pts.size(); i++) {
+    //         src_pts_mat.at<double>(i, 0) = src_pts[i][0];
+    //         src_pts_mat.at<double>(i, 1) = src_pts[i][1];
+    //     }
+
+    //     cv::Mat dst_pts_mat(dst_pts.size(), 2, CV_64F);
+    //     for (int i = 0; i < dst_pts.size(); i++) {
+    //         dst_pts_mat.at<double>(i, 0) = dst_pts[i][0];
+    //         dst_pts_mat.at<double>(i, 1) = dst_pts[i][1];
+    //     }
+
+    //     cv::Mat h = cv::findHomography(src_pts_mat, dst_pts_mat, cv::RANSAC);
+    //     this->homography_ = h;
+
+    // void loadCalibrate() {
+    //     try {
+    //         Json::Value calib;
+    //         std::ifstream file("calibration.json");
+
+    //         if (!file.is_open()) {
+    //             std::cerr << "Failed to open calibration.json" << std::endl;
+    //             return;
+    //         }
+
+    //         file >> calib;
+    //         file.close();
+
+    //         const Json::Value src_pts = calib["src_pts"];
+    //         const Json::Value dst_angs = calib["dst_angs"];
+
+    //         Eigen::MatrixXd src_pts_matrix(src_pts.size(), 2);
+    //         Eigen::MatrixXd dst_pts_matrix(dst_angs.size() + 1, 2);
+
+    //         for (int i = 0; i < src_pts.size(); ++i) {
+    //             src_pts_matrix(i, 0) = src_pts[i][0].asDouble();
+    //             src_pts_matrix(i, 1) = src_pts[i][1].asDouble();
+    //         }
+
+    //         Eigen::MatrixXd s_ret_pts = src_pts_matrix.block(1, 0, src_pts_matrix.rows() - 1, src_pts_matrix.cols());
+    //         Eigen::MatrixXd s_ext_pts = src_pts_matrix.block(2, 0, src_pts_matrix.rows() - 2, src_pts_matrix.cols());
+            
+    //         Eigen::MatrixXd arr = s_ret_pts - s_ext_pts;
+    //         double L = sqrt(arr.array().square().rowwise().sum().mean()) / (cos(THETA_EXT) - cos(THETA_RET));
+
+    //         Eigen::MatrixXd arr1 = s_ret_pts - src_pts_matrix.row(0).transpose();
+    //         double l1 = sqrt(arr1.array().square().rowwise().sum().mean()) - L * cos(THETA_RET);
+    //         Eigen::MatrixXd arr2 = s_ext_pts - src_pts_matrix.row(0).transpose();
+    //         double l2 = sqrt(arr2.array().square().rowwise().sum().mean()) - L * cos(THETA_EXT);
+    //         double l = (l1 + l2) / 2;
+
+    //         dst_pts_matrix(0, 0) = 0;
+    //         dst_pts_matrix(0, 1) = 0;
+
+    //         for (int i = 0; i < dst_angs.size(); ++i) {
+    //             double phi = dst_angs[i][0].asDouble();
+    //             double rho = L * cos(dst_angs[i][1].asDouble()) + l;
+    //             double x = rho * cos(phi);
+    //             double y = rho * sin(phi);
+    //             dst_pts_matrix(i + 1, 0) = x;
+    //             dst_pts_matrix(i + 1, 1) = y;
+    //         }
+
+    //         cv::Mat H = cv::findHomography(src_pts_matrix, dst_pts_matrix, cv::RANSAC);
+
+    //         // Store the homography matrix for further use
+    //         this->homography_ = H;
         // Assuming 'InvKin' and 'Arm3Link' classes are defined elsewhere
-        std::vector<double> arm_vect = {L / 2, L / 2, l + L_FUDGE};
-        InvKin = arm_vect;
+//         std::vector<double> arm_vect = {L / 2, L / 2, l + L_FUDGE};
+//         InvKin = arm_vect;
 
-        std::cout << "calibration loaded." << std::endl;
-        std::cout << "estimated l = " << l << std::endl;
-        std::cout << "estimated L = " << L << std::endl;
+//         std::cout << "calibration loaded." << std::endl;
+//         std::cout << "estimated l = " << l << std::endl;
+//         std::cout << "estimated L = " << L << std::endl;
 
-        cv::destroyAllWindows();
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+//         cv::destroyAllWindows();
+//     } catch (const std::exception& e) {
+//         std::cerr << "Error: " << e.what() << std::endl;
+//         std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+//     }
+// }
+    void loadCalibrate() {
+        try {
+            std::ifstream file("calibration.json");
+            if (!file.is_open()) {
+                std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+                return;
+            }
+
+            json calib = json::parse(file);
+            file.close();
+
+            const auto s = calib.dump(); // serialize to std::string
+            std::cout << "JSON string: " << s << '\n';
+            std::cout << "JSON size  : " << s.size() << '\n';
+
+            const json& src_pts_js = calib["src_pts"];
+            const json& dst_angs_js = calib["dst_angs"];
+
+
+            std::vector<std::vector<double>> src_pts;
+            std::vector<std::vector<double>> dst_angs;
+
+            for (const auto& point : src_pts_js) {
+                src_pts.push_back({point[0].get<double>(), point[1].get<double>()});
+            }
+
+            for (const auto& point2 : dst_angs_js) {
+                dst_angs.push_back({point2[0].get<double>(), point2[1].get<double>(), point2[2].get<double>(),point2[3].get<double>()});
+            }
+
+            std::cout << "dst_angs is " << std::endl;
+            for(int a = 0; a < dst_angs.size(); a++){
+                for(int b = 0; b < dst_angs[a].size(); b++){
+                    std::cout << dst_angs[a][b] << ", ";
+                    }
+                std::cout << std::endl;
+                }
+
+            std::vector<std::vector<double>> s_ret_pts, s_ext_pts;
+            for (int i = 1; i < src_pts.size(); i += 2) {
+                s_ret_pts.push_back(src_pts[i]);
+                s_ext_pts.push_back(src_pts[i + 1]);
+            }
+
+            std::vector<std::vector<double>> arr;//(s_ret_pts.size());
+            for (int i = 0; i < s_ret_pts.size(); i++) {
+                // arr[i] = s_ret_pts[i] - s_ext_pts[i];
+                std::vector<double> arr_i(2);
+                arr_i[0] = s_ret_pts[i][0] - s_ext_pts[i][0];
+                arr_i[1] = s_ret_pts[i][1] - s_ext_pts[i][1];
+                arr.push_back(arr_i);
+            }
+
+            // double sum_of_squares = 0.0;
+            // for (const auto& v : arr) {
+            //     sum_of_squares += v[0] * v[0] + v[1] * v[1];
+            // }
+            L = calculateMeanNorm(arr) / (cos(THETA_EXT) - cos(THETA_RET));
+            // double L = sqrt(sum_of_squares) / (cos(THETA_EXT) - cos(THETA_RET));
+            std::cout << "L is" << L << std::endl;
+
+            std::vector<std::vector<double>> arr1;
+            for (size_t i = 0; i < s_ret_pts.size(); ++i) {
+                std::vector<double> arr1_i(2);
+                arr1_i[0] = s_ret_pts[i][0] - src_pts[0][0];
+                arr1_i[1] = s_ret_pts[i][1] - src_pts[0][1];
+                arr1.push_back(arr1_i);
+            }
+
+            // double l1 = 0.0;
+            // for (const auto& v : arr1) {
+            //     l1 += sqrt(v[0] * v[0] + v[1] * v[1]);
+            // }
+            // std::cout << "l1 before is" << l1 << std::endl;
+            // l1 /= s_ret_pts.size();
+            // std::cout << "l1 after is" << l1 << std::endl;
+            double l1 = calculateMeanNorm(arr1);
+            std::cout << "l1 before is" << l1 << std::endl;
+            // l1 /= s_ret_pts.size();
+            // std::cout << "l1 after is" << l1 << std::endl;
+            l1 = l1 - L*cos(THETA_RET);
+            std::cout << "l1 after is" << l1 << std::endl;
+
+            std::vector<std::vector<double>> arr2;
+            for (size_t i = 0; i < s_ext_pts.size(); ++i) {
+                std::vector<double> arr2_i(2);
+                arr2_i[0] = s_ext_pts[i][0] - src_pts[0][0];
+                arr2_i[1] = s_ext_pts[i][1] - src_pts[0][1];
+                arr2.push_back(arr2_i);
+            }
+
+            // double l2 = 0.0;
+            // for (const auto& v : arr2) {
+            //     l2 += sqrt(v[0] * v[0] + v[1] * v[1]);
+            // }
+            // std::cout << "l2 before is" << l2 << std::endl;
+            // l2 /= s_ext_pts.size();
+            // std::cout << "l2 after is" << l2 << std::endl;
+            double l2 = calculateMeanNorm(arr2);
+            std::cout << "l2 before is" << l2 << std::endl;
+            // l2 /= s_ext_pts.size();
+            // std::cout << "l2 after is" << l2 << std::endl;
+            l2 = l2 - L*cos(THETA_EXT);
+            std::cout << "l2 after is" << l2 << std::endl;
+
+            l = (l1 + l2)/ 2;
+            std::cout << "l is" << l << std::endl;
+
+            std::vector<std::vector<double>> dst_pts = {{0, 0}};
+
+            for (const std::vector<double>& dst_ang : dst_angs) {
+                // double phi = dst_ang[0];
+                // std::cout << "phi is "<< phi << std::endl;
+                // double rho = L * cos(dst_ang[1]) + l;
+                // std::cout << "rho is "<< rho << std::endl;
+                // double x = rho * cos(phi);
+                // std::cout << "x is "<< x << std::endl;
+                // double y = rho * sin(phi);
+                // std::cout << "y is "<< y << std::endl;
+                // dst_pts.push_back({x, y});
+                double phi = dst_ang[0];
+                std::cout << "phi is" << phi << std::endl;
+                double rho = L * cos(dst_ang[1]) + l;
+                std::cout << "rho is" << rho << std::endl;
+                std::pair<double,double> coord = pol2cart(rho, phi);
+                dst_pts.push_back({coord.first, coord.second});
+            }
+
+            cv::Mat src_pts_mat(src_pts.size(), 2, CV_64F);
+            for (int i = 0; i < src_pts.size(); i++) {
+                src_pts_mat.at<double>(i, 0) = src_pts[i][0];
+                src_pts_mat.at<double>(i, 1) = src_pts[i][1];
+            }
+
+            cv::Mat dst_pts_mat(dst_pts.size(), 2, CV_64F);
+            for (int i = 0; i < dst_pts.size(); i++) {
+                dst_pts_mat.at<double>(i, 0) = dst_pts[i][0];
+                dst_pts_mat.at<double>(i, 1) = dst_pts[i][1];
+            }
+
+            int rows_src = sizeof(src_pts)/sizeof(src_pts[0]);
+            int cols_src = sizeof(src_pts[0])/sizeof(src_pts[0][0]);
+            std::cout<< "Shape of src_pts is "<< rows_src <<" "<<cols_src<<std::endl;
+
+            int rows_dst = sizeof(dst_pts)/sizeof(dst_pts[0]);
+            int cols_dst = sizeof(dst_pts[0])/sizeof(dst_pts[0][0]);
+            std::cout<< "Shape of dst_pts is "<< rows_dst <<" "<< cols_dst <<std::endl;
+
+            std::cout << "src_pts array is " << std::endl;
+            for(int i = 0; i < src_pts.size(); i++){
+                for(int j = 0; j < src_pts[i].size(); j++){
+                    std::cout << src_pts[i][j] << ", ";
+                    }
+                std::cout << std::endl;
+                }
+
+            std::cout << "dst_pts array is " << std::endl;
+            for(int h = 0; h < dst_pts.size(); h++){
+                for(int k = 0; k < dst_pts[h].size(); k++){
+                    std::cout <<  dst_pts[h][k] << ", ";
+                    }
+                std::cout << std::endl;
+                }
+
+            cv::Mat h = cv::findHomography(src_pts_mat, dst_pts_mat, cv::RANSAC);
+            homography_ = h;
+
+            std::vector<double> arm_vect = {L / 2, L / 2, l + L_FUDGE};
+            InvKin = arm_vect;
+
+            std::cout << "calibration loaded." << std::endl;
+            std::cout << "estimated l = " << l << std::endl;
+            std::cout << "estimated L = " << L << std::endl;
+
+            cv::destroyAllWindows();
+        } catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            std::cerr << "calibration.json not in current directory, run calibration first" << std::endl;
+        }
     }
-}
     
        void linkstate_callback(const gazebo_msgs::LinkStates::ConstPtr& data) {
         linkstate_data = *data;
@@ -616,15 +923,15 @@ class BraccioObjectInterface{
         goJoint(joint_goal[0], 2.5, joint_goal[2], joint_goal[3]);
     }
 
-    void callbackMatrix(const custom_msgs::matrix::ConstPtr& msg) {
-        for (size_t i = 0; i < msg->targets.size(); ++i) {
-            targets_list.push_back(msg->targets[i]);
-            this->i = i;
-        }
-    }
+    // void callbackMatrix(const custom_msgs::matrix::ConstPtr& msg) {
+    //     for (size_t i = 0; i < msg->targets.size(); ++i) {
+    //         targets_list.push_back(msg->targets[i]);
+    //         this->i = i;
+    //     }
+    // }
 
-    std::pair<int, std::vector<custom_msgs::matrix>> returnTargets() {
-        return std::make_pair(i, targets_list);
-    }
+    // std::pair<int, std::vector<custom_msgs::matrix>> returnTargets() {
+    //     return std::make_pair(i, targets_list);
+    // }
 
 };

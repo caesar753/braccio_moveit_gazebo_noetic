@@ -16,6 +16,8 @@ int main(int argc, char** argv) {
 
     BraccioObjectInterface auto_targ;
 
+    // auto_targ.loadCalibrate();
+
     std::string target_file = "targets.txt";
     std::ifstream t(target_file);
 
@@ -35,25 +37,32 @@ int main(int argc, char** argv) {
             tar_arr.push_back(tokens);
         }
 
-        t.close();
+        t.close();    
 
         for (size_t j = 0; j < tar_arr.size(); ++j) {
-            std::string inp_ch = tar_arr[j][0];
-            inp_ch.erase(std::remove(inp_ch.begin(), inp_ch.end(), '\''), inp_ch.end());
-            std::cout << inp_ch << std::endl;
+        std::string inp_ch = tar_arr[j][0];
+        inp_ch.erase(std::remove(inp_ch.begin(), inp_ch.end(), '\''), inp_ch.end());
+        std::cout << inp_ch << std::endl;
 
-            auto_targ.get_link_choose(inp_ch);
+        auto_targ.get_link_choose(inp_ch);
 
-            std::string bowl_ch = tar_arr[j][1];
-            bowl_ch.erase(std::remove(bowl_ch.begin(), bowl_ch.end(), '\''), bowl_ch.end());
-            std::cout << inp_ch << " " << bowl_ch << std::endl;
-            auto_targ.loadCalibrate();
+        std::cout << "Got the link_choose" << std::endl;
 
-            auto_targ.goTarget(bowl_ch);
+        std::string bowl_ch = tar_arr[j][1];
+        bowl_ch.erase(std::remove(bowl_ch.begin(), bowl_ch.end(), '\''), bowl_ch.end());
+        std::cout << "Got the bowl choosen" << std::endl;
+
+        std::cout << inp_ch << " " << bowl_ch << std::endl;
+        auto_targ.loadCalibrate();
+
+        auto_targ.goTarget(bowl_ch);
         }
+
     } else {
-        std::cerr << "Failed to open " << target_file << std::endl;
+    std::cerr << "Failed to open " << target_file << std::endl;
+    return 1;
     }
+
 
     return 0;
 }

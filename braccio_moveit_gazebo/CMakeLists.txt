@@ -151,6 +151,14 @@ add_executable(get_target cpp/get_target_from_file.cpp)
 target_link_libraries(get_target ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 install(DIRECTORY launch get_target DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
+add_executable(json_load cpp/prove/json_load_calibrate.cpp)
+target_link_libraries(json_load ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+install(DIRECTORY launch json_load DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+# add_executable(json_load_nlh cpp/prove/json_load_calibrate_without_nlhoman.cpp)
+# target_link_libraries(json_load_nlh ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+# install(DIRECTORY launch json_load_nlh DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
 # add_executable(invkin cpp/InvKin.cpp)
 # target_link_libraries(invkin ${catkin_LIBRARIES})
 
