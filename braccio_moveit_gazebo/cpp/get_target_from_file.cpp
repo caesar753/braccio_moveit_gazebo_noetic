@@ -4,7 +4,8 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include "auto_targetter.hpp" // Assuming you have an "auto_targetter" library
+// #include "auto_targetter.hpp" // Assuming you have an "auto_targetter" library
+#include "./prove/auto_targetter_iperreduced.hpp"
 
 
 int main(int argc, char** argv) {
@@ -16,7 +17,7 @@ int main(int argc, char** argv) {
 
     BraccioObjectInterface auto_targ;
 
-    // auto_targ.loadCalibrate();
+    auto_targ.loadCalibrate();
 
     std::string target_file = "targets.txt";
     std::ifstream t(target_file);
@@ -53,7 +54,7 @@ int main(int argc, char** argv) {
         std::cout << "Got the bowl choosen" << std::endl;
 
         std::cout << inp_ch << " " << bowl_ch << std::endl;
-        auto_targ.loadCalibrate();
+        // auto_targ.loadCalibrate();
 
         auto_targ.goTarget(bowl_ch);
         }
