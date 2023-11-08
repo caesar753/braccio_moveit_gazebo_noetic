@@ -2,4 +2,4 @@ braccio_moveit_gazebo/scripts/__pycache__
 braccio_moveit_gazebo/vision/
 braccio_moveit_gazebo/scripts/models/
 braccio_moveit_gazebo/scripts/prove/
-braccio_moveit_gazebo/cpp/prove/
+# braccio_moveit_gazebo/cpp/prove/

@@ -30,17 +30,26 @@ public:
         return {x, y};
     }
 
-    std::vector<double> inv_kin(std::vector<double> x, double min_y, double max_y, double end_angle = -M_PI / 2) {
+    // std::vector<double> inv_kin(std::vector<double> x, double min_y, double max_y, double end_angle = -M_PI / 2) {
+    std::vector<double> inv_kin(double x, double min_y, double max_y, double end_angle = -M_PI / 2) {
+            
         this->min_y = min_y;
         this->max_y = max_y;
         this->end_angle = end_angle;
 
-        auto distance_to_default = [&](const std::vector<double>& q) {
-            std::vector<double> x_current = get_xy(q);
-            double dist = std::inner_product(x_current.begin(), x_current.end(), x.begin(), 0.0,
-                std::plus<>(), [](double a, double b) { return (a - b) * (a - b); });
-            return dist;
-        };
+        // auto distance_to_default = [&](const std::vector<double>& q) {
+        //     std::vector<double> x_current = get_xy(q);
+        //     double dist = std::inner_product(x_current.begin(), x_current.end(), x.begin(), 0.0,
+        //     // double dist = std::inner_product(x_current.begin(), x_current.end(), x, 0.0,
+        //         std::plus<>(), [](double a, double b) { return (a - b) * (a - b); });
+        //     return dist;
+        // };
+
+    auto distance_to_default = [&](const std::vector<double>& q) {
+        std::vector<double> x_current = get_xy(q);
+        double dist = (x_current[0] - x) * (x_current[0] - x);
+        return dist;
+    };
 
         auto y_upper_constraint = [&](const std::vector<double>& q) {
             std::vector<double> xy = get_xy(q);

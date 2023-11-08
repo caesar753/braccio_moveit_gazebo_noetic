@@ -155,9 +155,9 @@ add_executable(json_load cpp/prove/json_load_calibrate.cpp)
 target_link_libraries(json_load ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 install(DIRECTORY launch json_load DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-# add_executable(iper_reduced cpp/prove/auto_targetter_iperreduced.cpp)
-# target_link_libraries(iper_reduced ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-# install(DIRECTORY launch iper_reduced DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+add_executable(prova_q cpp/prove/prova_q_invkin.cpp)
+target_link_libraries(prova_q ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+install(DIRECTORY launch prova_q DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 # add_executable(invkin cpp/InvKin.cpp)
 # target_link_libraries(invkin ${catkin_LIBRARIES})
