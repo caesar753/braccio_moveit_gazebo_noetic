@@ -24,7 +24,7 @@
 
     <!--  call to gazebo_ros to spawn a D435i URDF model -->
   <node name="camera_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-urdf -model camera -param camera_description -x 0.0 -y 0.0 -z 0.47 -P 1.0 -Y 0.78"/>
+    args="-urdf -model camera -param camera_description -x 0.0 -y 0.0 -z 0.40 -P 1.0 -Y 0.78"/>
   
   <node name="camera_mount_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
     args="-urdf -model camera_mount -param camera_mount_description -x 0.0 -y 0.0 -z 0.0 -P 0.0 -Y 0.00"/>
@@ -38,7 +38,7 @@
   
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model $(arg robot_name) -param robot_description -x 0.0 -y 0.0 -z 0.011"/>
+        args="-urdf -model $(arg robot_name) -param robot_description -x 0.0 -y 0.0 -z 0.11"/>
       <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model $(arg robot_name) -param robot_description"/> -->
 
