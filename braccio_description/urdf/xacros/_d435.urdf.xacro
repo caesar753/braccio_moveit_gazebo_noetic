@@ -145,8 +145,9 @@ aluminum peripherial evaluation case.
 
   </xacro:macro>
 
-    <xacro:sensor_d435 parent="world">
-          <origin xyz="0.0 0.0 0.5" rpy="0.0 0.0 0.0" />
+    <xacro:sensor_d435 parent="mount">
+          <!-- <origin xyz="0.0 0.0 0.5" rpy="0.0 0.0 0.0" /> -->
+          <origin xyz="0.0857 0.0000476009 -0.273184" rpy="0.0 0.0 0.0" />
     </xacro:sensor_d435>
 
 </robot>

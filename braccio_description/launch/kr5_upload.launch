@@ -14,9 +14,10 @@
 
 <param name="robot_description" textfile="$(find braccio_description)/urdf/braccio_model.urdf" />
 
+<!-- 
+<param name="camera_mount_description" textfile="$(find braccio_description)/urdf/camera_mount.urdf" /> -->
 
-<param name="camera_mount_description" textfile="$(find braccio_description)/urdf/camera_mount.urdf" />
-
+<param name="camera_mount_description" textfile="$(find braccio_description)/urdf/camera_mount_model.urdf" /> 
 
 
 </launch>

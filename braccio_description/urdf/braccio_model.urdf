@@ -311,10 +311,11 @@
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
   </joint> -->
 
-    <link name="camera_mount_base"/>
+    <link name="mount"/>
     <joint name="camera_mount_joint" type="continuous">
-        <parent link="camera_mount_base"/>
+        <parent link="mount"/>
         <child link="base_link"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.01"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.00"/>
+        <!-- <axis xyz="0 0 1"> -->
     </joint> 
 </robot>
