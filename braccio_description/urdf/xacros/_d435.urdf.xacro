@@ -39,15 +39,13 @@ aluminum peripherial evaluation case.
     <color rgba="0.5 0.5 0.5 1"/>
     </material>
 
-
-    <!-- camera body, with origin at bottom screw mount -->
-    <link name="${name}_bottom_screw_frame"/>
-    
-    <!-- <joint name="${name}_joint" type="fixed">
+    <joint name="${name}_joint" type="fixed">
       <xacro:insert_block name="origin" />
       <parent link="${parent}"/>
       <child link="${name}_bottom_screw_frame" />
-    </joint> -->
+    </joint>
+     <!-- camera body, with origin at bottom screw mount -->
+    <link name="${name}_bottom_screw_frame"/>
      
 
     <joint name="${name}_link_joint" type="fixed">
@@ -144,10 +142,5 @@ aluminum peripherial evaluation case.
     <xacro:gazebo_d435 camera_name="${name}" reference_link="${name}_link" topics_ns="${topics_ns}" depth_optical_frame="${name}_depth_optical_frame" color_optical_frame="${name}_color_optical_frame" infrared1_optical_frame="${name}_left_ir_optical_frame" infrared2_optical_frame="${name}_right_ir_optical_frame" publish_pointcloud="${publish_pointcloud}"/>
 
   </xacro:macro>
-
-    <xacro:sensor_d435 parent="mount">
-          <!-- <origin xyz="0.0 0.0 0.5" rpy="0.0 0.0 0.0" /> -->
-          <origin xyz="0.0857 0.0000476009 -0.273184" rpy="0.0 0.0 0.0" />
-    </xacro:sensor_d435>
 
 </robot>

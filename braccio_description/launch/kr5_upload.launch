@@ -11,11 +11,9 @@
 
 <param name="camera_description" command="$(find xacro)/xacro '$(find braccio_description)/urdf/xacros/_d435.urdf.xacro' " />
 
-
 <param name="robot_description" textfile="$(find braccio_description)/urdf/braccio_model.urdf" />
 
-<!-- 
-<param name="camera_mount_description" textfile="$(find braccio_description)/urdf/camera_mount.urdf" /> -->
+<param name="robot_description_gz"  command="$(find xacro)/xacro $(find braccio_description)/urdf/xacros/camera_and_mount_and_braccio.urdf.xacro"/>
 
 <param name="camera_mount_description" textfile="$(find braccio_description)/urdf/camera_mount_model.urdf" /> 
 

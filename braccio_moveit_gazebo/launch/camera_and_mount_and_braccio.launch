@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+
   <arg name="connect_braccio" default="false" />
   <arg name="robot_name" default="kuka" />
   <arg name="use_ros_control" default="False" />
@@ -12,7 +13,7 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
-  <!-- We resume the logic in empty_world.launch -->
+    <!-- We resume the logic in empty_world.launch -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find braccio_moveit_gazebo)/worlds/test_ramp_bowl.world"/>
     <arg name="debug" value="$(arg debug)" />
@@ -22,23 +23,15 @@
     <arg name="headless" value="$(arg headless)"/>
   </include>
 
-  <!-- <node name="camera_mount_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-urdf -model camera_mount -param camera_mount_description -Y 0.78"/>
-
-  <node name="camera_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-urdf -model camera -param camera_description -z 0.55 -P 1.0 -Y 1.10"/> -->
-
-  <!-- Load the URDF into the ROS Parameter Server -->
+    <!-- Load the URDF into the ROS Parameter Server -->
   <include file="$(find braccio_description)/launch/kr5_upload.launch">
      <arg name="robot_name" value="$(arg robot_name)" />
      <arg name="use_ros_control" value="$(arg use_ros_control)" />
   </include>
-  
+
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model $(arg robot_name) -param robot_description -x 0.0 -y 0.0 -z 0.017"/>
-      <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model $(arg robot_name) -param robot_description"/> -->
+        args="-urdf -model $(arg robot_name)  -param robot_description_gz"/>
 
   <include file="$(find braccio_moveit_gazebo)/launch/controller_utils.launch"/>
 
@@ -54,19 +47,5 @@
   <include if="$(arg connect_braccio)" file="$(find braccio_moveit_gazebo)/launch/connect.launch">
   </include>
 
-   <!--  call to gazebo_ros to spawn a D435i URDF model -->
-  <!-- <node name="camera_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-urdf -model camera -param camera_description -x 0.0 -y 0.0 -z 0.40 -P 1.0 -Y 0.78"/> -->
-  
-  <!-- start realsense node -->    
-  <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-    <arg name="filters" value="pointcloud" />
-    <arg name="initial_reset" value="true" />
-    <arg name="align_depth" value="true" />
-    <arg name="tf_prefix" value="realsense" />
-    <arg name="allow_no_texture_points" value="true"/>
-  </include> -->
-
-  <!-- <node name="tf_camera_rotation" pkg="tf" type="static_transform_publisher" args="0 0 0.5 -0.75 0 -2.55   world camera_depth_optical_frame 50"/> -->
 
 </launch>

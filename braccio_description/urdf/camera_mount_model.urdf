@@ -20,4 +20,11 @@
         </inertial>
     </link>
 
+    <link name="world"/>
+    <joint name="world_joint" type="fixed">
+        <parent link="world"/>
+        <child link="mount"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </joint>
+
 </robot>

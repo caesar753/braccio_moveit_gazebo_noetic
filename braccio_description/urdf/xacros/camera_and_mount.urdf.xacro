@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="repair_full">
+    
+    <xacro:include filename="$(find braccio_description)/urdf/xacros/camera_mount_model.urdf.xacro" />
+
+    <xacro:include filename="$(find braccio_description)/urdf/xacros/_d435.urdf.xacro"/>
+
+
+    <link name="world"/>
+
+    <xacro:camera_mount parent="world">
+    </xacro:camera_mount>
+
+    <xacro:sensor_d435 parent="mount">
+        <origin xyz="0.0 0.0 0.6" rpy="0.0 0.0 0.0" />
+    </xacro:sensor_d435>
+
+
+</robot>
