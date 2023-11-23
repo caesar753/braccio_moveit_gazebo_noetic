@@ -5,6 +5,7 @@
   <arg name="robot_name" default="kuka" />
   <arg name="use_ros_control" default="False" />
   <arg name="use_rviz" default="False" />
+  <arg name="rd" default="robot_description" />
 
   <!-- these are the arguments you can pass this launch file, for example paused:=true -->
   <arg name="paused" default="false"/>
@@ -24,14 +25,14 @@
   </include>
 
     <!-- Load the URDF into the ROS Parameter Server -->
-  <include file="$(find braccio_description)/launch/kr5_upload.launch">
+  <include file="$(find braccio_description)/launch/kr5.1_upload.launch">
      <arg name="robot_name" value="$(arg robot_name)" />
      <arg name="use_ros_control" value="$(arg use_ros_control)" />
   </include>
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model $(arg robot_name)  -param robot_description_gz"/>
+        args="-urdf -model $(arg robot_name)  -param $(arg rd)"/>
 
   <include file="$(find braccio_moveit_gazebo)/launch/controller_utils.launch"/>
 
@@ -42,6 +43,7 @@
   <!-- start moveit: -->
   <include file="$(find braccio_moveit_config)/launch/start_moveit_connected_with_gz.launch" >
     <arg name="use_rviz" value="$(arg use_rviz)" />
+    <arg name="robot_description" value="$(arg rd)" />
   </include>
 
   <include if="$(arg connect_braccio)" file="$(find braccio_moveit_gazebo)/launch/connect.launch">

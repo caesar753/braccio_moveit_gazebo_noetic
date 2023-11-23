@@ -1,10 +1,13 @@
 <?xml version="1.0"?>
 <launch>
         <arg name="use_rviz" default="false" />
+        <arg name="robot_description" default="robot_description" />
+
         <rosparam command="load" file="$(find braccio_moveit_config)/config/joint_names.yaml" />
 
         <include file="$(find braccio_moveit_config)/launch/planning_context.launch">
                 <arg name="load_robot_description" value="true" />
+                <arg name="robot_description" value="$(arg robot_description)" />
         </include>
 
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">

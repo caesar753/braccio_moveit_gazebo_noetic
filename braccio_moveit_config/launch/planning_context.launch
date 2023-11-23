@@ -8,9 +8,12 @@
 
   <!-- The name of the parameter under which the URDF is loaded -->
   <arg name="robot_description" default="robot_description"/>
+  <!-- <arg name="robot_description" /> -->
 
   <!-- Load universal robot description format (URDF) -->
-  <param if="$(arg load_robot_description)" name="$(arg robot_description)" textfile="$(find braccio_description)/urdf/braccio_planning_model.urdf" />
+  <!-- <param if="$(arg load_robot_description)" name="$(arg robot_description)" textfile="$(find braccio_description)/urdf/braccio_planning_model.urdf" /> -->
+  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="$(find xacro)/xacro $(find braccio_description)/urdf/xacros/camera_and_mount_and_braccio_planning.urdf.xacro" />
+
 
   <!-- The semantic description that corresponds to the URDF -->
   <param name="$(arg robot_description)_semantic" textfile="$(find braccio_moveit_config)/config/manipulator.srdf" />

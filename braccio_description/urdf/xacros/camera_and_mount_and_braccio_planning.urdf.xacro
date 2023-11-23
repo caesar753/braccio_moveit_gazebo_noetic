@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://ros.org/wiki/xacro" name="braccio_full">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="kr5">
     
     <xacro:include filename="$(find braccio_description)/urdf/xacros/camera_mount_model.urdf.xacro" />
 
     <xacro:include filename="$(find braccio_description)/urdf/xacros/_d435.urdf.xacro"/>
-    <xacro:include filename="$(find braccio_description)/urdf/xacros/braccio_model.urdf.xacro"/>
+    <xacro:include filename="$(find braccio_description)/urdf/xacros/braccio_model_planning.urdf.xacro"/>
 
 
     <link name="world"/>
@@ -16,8 +16,8 @@
         <origin xyz="0.0 0.0 0.6" rpy="0.0 0.0 0.0" />
     </xacro:sensor_d435>
 
-    <xacro:kuka parent="mount">
-    </xacro:kuka>
+    <xacro:kr5 parent="mount">
+    </xacro:kr5>
 
 
 </robot>
