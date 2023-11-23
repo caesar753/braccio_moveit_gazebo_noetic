@@ -4,7 +4,7 @@
     <xacro:macro name="camera_mount" params="parent">
         <link name="mount"> 
             <inertial>
-                <origin rpy="1.57 0 0" xyz="0 0.0 0" />
+                <origin rpy="1.57 0 0.78" xyz="0 0.0 0" />
                 <mass value="2" />
                 <inertia ixx="0.015" ixy="0" ixz="0" iyy="0.00666666666667" iyz="0" izz="0.0216666666667"/>
             </inertial>
@@ -13,14 +13,14 @@
                     <mesh filename="package://braccio_description/stl/camera_mount.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="dark"/>
-                <origin rpy="1.57 0 0" xyz="0 0.0 0" />
+                <origin rpy="1.57 0 0.78" xyz="0 0.0 0" />
             </visual>
 
             <collision>
                 <geometry>
                     <mesh filename="package://braccio_description/stl/camera_mount.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
-                <origin rpy="1.57 0 0" xyz="0 0.0 0" />
+                <origin rpy="1.57 0 0.78" xyz="0 0.0 0" />
             </collision>
         </link>
 

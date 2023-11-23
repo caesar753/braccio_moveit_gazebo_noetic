@@ -15,11 +15,17 @@
                     <geometry>
                         <cylinder length="0.01" radius=".053" />
                     </geometry>
-                    <material name="black" />
-                    <origin rpy="0 0 0" xyz="0 0 0.0" />
+                    <!-- <material name="black" /> -->
+                    <origin rpy="0 0 0" xyz="0 0 0.020" />
                 </visual>
+                <collision>
+                    <geometry>
+                        <cylinder length="0.01" radius=".053" />  
+                    </geometry>
+                    <origin rpy="0 0 0" xyz="0 0 0.020" />
+                </collision>
                 <inertial>
-                    <origin rpy="0 0 0" xyz="0 0 0" />
+                    <origin rpy="0 0 0" xyz="0 0 0.020" />
                     <mass value="2" />
                     <inertia ixx="0.015" ixy="0" ixz="0" iyy="0.00666666666667" iyz="0" izz="0.0216666666667" />
                 </inertial>
@@ -31,16 +37,16 @@
                         <mesh filename="package://braccio_description/stl/braccio_base.stl" scale="0.001 0.001 0.001" />
                     </geometry>
                     <material name="orange" />
-                    <origin rpy="0 0 3.1416" xyz="0 0.004 0" />
+                    <origin rpy="0 0 3.1416" xyz="0 0.004 0.023" />
                 </visual>
                 <collision>
                     <geometry>
                         <mesh filename="package://braccio_description/stl/braccio_base.stl" scale="0.001 0.001 0.001" />
                     </geometry>
-                    <origin rpy="0 0 3.1416" xyz="0 0.004 0" />
+                    <origin rpy="0 0 3.1416" xyz="0 0.004 0.023" />
                 </collision>
                 <inertial>
-                    <origin rpy="0 0 3.1416" xyz="0 0.004 0" />
+                    <origin rpy="0 0 3.1416" xyz="0 0.004 0.023" />
                     <mass value="2" />
                     <inertia ixx="0.015" ixy="0" ixz="0" iyy="0.00666666666667" iyz="0" izz="0.0216666666667" />
                 </inertial>
@@ -322,9 +328,10 @@
                 <!-- <axis xyz="0 0 1"> -->
             <!-- </joint>  -->
 
-        <joint name="robot_joint" type="fixed" >
+        <joint name="robot_joint" type="contiuous" >
             <parent link="${parent}" />
             <child link="base_link" />
+            <axis xyz="0 0 -1" />
         </joint> 
      </xacro:macro>
 
