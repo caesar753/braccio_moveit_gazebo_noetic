@@ -12,7 +12,7 @@
                 <geometry>
                     <mesh filename="package://braccio_description/stl/camera_mount.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
-                <material name="dark"/>
+                <material name="white"/>
                 <origin rpy="1.57 0 0.78" xyz="0 0.0 0" />
             </visual>
 

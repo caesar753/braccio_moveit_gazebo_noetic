@@ -345,12 +345,9 @@
         <material>Gazebo/Turquoise</material>
     </gazebo>
     
-    <!-- <link name="world"/> -->
     <joint name="robot_joint" type="fixed">
         <parent link="${parent}"/>
         <child link="base_link"/>
-        <!-- <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/> -->
-        <!-- <axis xyz="0 0 -1" /> -->
     </joint>
     
     </xacro:macro>
