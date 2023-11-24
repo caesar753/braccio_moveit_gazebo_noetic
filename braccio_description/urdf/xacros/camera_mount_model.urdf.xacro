@@ -25,9 +25,10 @@
         </link>
 
 
-        <joint name="mount_joint" type="fixed" >
+        <joint name="mount_joint" type="continuous" >
             <parent link="${parent}" />
             <child link="mount" />
+            <axis xyz="0 0 -1" />
         </joint> 
     </xacro:macro>
 

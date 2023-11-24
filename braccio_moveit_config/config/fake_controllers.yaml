@@ -6,3 +6,7 @@ controller_list:
       - elbow_joint
       - wrist_pitch_joint
       - wrist_roll_joint
+
+initial:  # Define initial robot pose to max_top
+  - group: braccio_arm
+    pose: max_top
