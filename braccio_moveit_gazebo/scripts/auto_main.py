@@ -255,8 +255,7 @@ def main():
             # print(np.where([groups==posizioni[i,0]])[0].astype(int))
             link_choose.append(lk)
                 
-    # for j in range(len(link_choose)):
-    #     print(f"link choose is: {link_choose[j,3]}")  
+    # converting the list in a numpy array
     link_array = np.array(link_choose)
     print(f"selected are {np.array2string(link_array)}")
 
@@ -278,8 +277,11 @@ def main():
     #     o3d.visualization.draw_geometries([table_cloud, object_cloud])
     ###POINTCLOUD SEGMENTATION - END ###
 
+    #HERE WE USE CUSTOM TARGET AND MATRIX MESSAGES
+    # List with the target messages
     target_msg_arr = []
     for j in range(len(link_array)):
+        #Generating the target message, fields are: nr[int], sherd[str], home[str]
         target_msg = target()
         target_msg.nr = j
         inp_ch = link_array[j,1].astype(str) + "::link"
@@ -291,17 +293,20 @@ def main():
         bowl_ch = "go_to_home_" + bowl_ch
         print(bowl_ch)
         target_msg.home = bowl_ch
+        #Appending the target message to the list
         target_msg_arr.append(target_msg)
     
-    
+    # Converting the target_msg_arr list in a (custom) matrix_msg
     matrix_msg = matrix()
     matrix_msg.targets = target_msg_arr
     print(matrix_msg)
 
     rate = rospy.Rate(10)
 
+    # creating the target_pub publisher, topic is /targets, message type is matrix
     target_pub = rospy.Publisher('/targets', matrix, queue_size=10)
 
+    # Publishing the matrix message with the targets
     while not rospy.is_shutdown():
         target_pub.publish(matrix_msg)
         # rospy.spin()

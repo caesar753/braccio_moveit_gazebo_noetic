@@ -64,10 +64,11 @@ class BraccioObjectTargetInterface(object):
     self.states_sub = rospy.Subscriber("/gazebo/link_states", LinkStates, self.linkstate_callback)
     self.targets_list = []
     self.i = 0
+    # Subscriber to /targets topic with matrix message
     self.target_matrix = rospy.Subscriber("/targets", matrix, self.callback_matrix)
-    #sleep else ros cannot get the robot state
+    #sleep else ROS cannot get the robot state and the matrix msg
     rospy.sleep(1)
-    #unregister targets subscribers
+    #unregister target_matrix subscriber
     self.target_matrix.unregister()
 
     group_name = "braccio_arm"
